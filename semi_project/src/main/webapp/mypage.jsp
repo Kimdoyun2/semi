@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>dokky</title>
 <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
 
@@ -157,7 +157,6 @@
     <jsp:include page="/WEB-INF/views/layout/footer.jsp"></jsp:include>
 </footer>
 
-<jsp:include page="/WEB-INF/views/layout/staticFooter.jsp"/>
 
 </body>
 </html>

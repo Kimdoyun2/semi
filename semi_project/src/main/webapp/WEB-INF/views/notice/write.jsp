@@ -7,7 +7,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>spring</title>
+<title>dokky</title>
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
 <style type="text/css">
 
@@ -190,6 +190,5 @@ function sendBoard() {
     <jsp:include page="/WEB-INF/views/layout/footer.jsp"></jsp:include>
 </footer>
 
-<jsp:include page="/WEB-INF/views/layout/staticFooter.jsp"/>
 </body>
 </html>

@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>spring</title>
+<title>dokky</title>
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
 
 <style type="text/css">
@@ -134,6 +134,5 @@ function sendOk() {
     <jsp:include page="/WEB-INF/views/layout/footer.jsp"></jsp:include>
 </footer>
 
-<jsp:include page="/WEB-INF/views/layout/staticFooter.jsp"/>
 </body>
 </html>
