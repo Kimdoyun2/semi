@@ -26,7 +26,7 @@
 <div class="menu">
     <ul class="nav">
         <li>
-            <a href="#">강의</a>
+            <a href="${pageContext.request.contextPath}/lecture/list.do">강의</a>
         </li>
 			
         <li>
@@ -34,7 +34,7 @@
         </li>
 
         <li>
-            <a href="#">오픈소스</a>
+            <a href="${pageContext.request.contextPath}/opensource/list.do">오픈소스</a>
         </li>
 
         <li>
