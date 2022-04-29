@@ -42,7 +42,7 @@
         </li>
         
         <li>
-            <a href="#">스터디모집</a>
+            <a href="${pageContext.request.contextPath}/study/list.do">스터디모집</a>
         </li>
 
         <c:if test="${not empty sessionScope.member}">
