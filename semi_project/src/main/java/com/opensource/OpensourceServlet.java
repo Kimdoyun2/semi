@@ -2,6 +2,7 @@ package com.opensource;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.member.SessionInfo;
+import com.util.FileManager;
 import com.util.MyUploadServlet;
 import com.util.MyUtil;
 
@@ -39,7 +41,7 @@ public class OpensourceServlet extends MyUploadServlet {
 		
 		
 		String root = session.getServletContext().getRealPath("/");
-		pathname = root + "uploads" + File.separator + "notice";
+		pathname = root + "uploads" + File.separator + "opensource";
 		
 		if(uri.indexOf("list.do") != -1) {
 			list(req, resp);
@@ -112,9 +114,9 @@ public class OpensourceServlet extends MyUploadServlet {
 			
 			List<OpensourceDTO> list = null;
 			if(keyword.length() == 0) {
-				list = dao.listNotice(start, end, order);
+				list = dao.listOpensource(start, end, order);
 			} else {
-				list = dao.listNotice(start, end, condition, keyword, order);
+				list = dao.listOpensource(start, end, condition, keyword, order);
 			}
 			
 			int listNum, n = 0;
@@ -205,22 +207,9 @@ public class OpensourceServlet extends MyUploadServlet {
 			
 			String condition = req.getParameter("condition");
 			String keyword = req.getParameter("keyword");
-			if(condition == null) {
-				condition = "all";
-				keyword = "";
-			}
-			keyword = URLDecoder.decode(keyword, "utf-8");
-			
 			String order = req.getParameter("order");
-			if(order == null) {
-				order = "latest";
-			}
-			if(keyword.length() != 0) {
-				query += "&condition=" + condition + 
-						 "&keyword=" + URLEncoder.encode(keyword, "utf-8") +
-						 "&order=" + order;
-			}
 			
+			query += makeQuery(condition, keyword, order);
 			dao.updateHitCount(num);
 			
 			OpensourceDTO dto = dao.readOpensource(num);
@@ -253,21 +242,253 @@ public class OpensourceServlet extends MyUploadServlet {
 	
 	protected void updateForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 수정 폼
+		HttpSession session = req.getSession();
+		SessionInfo info = (SessionInfo)session.getAttribute("member");
+		String cp = req.getContextPath();
+		OpensourceDAO dao = new OpensourceDAO();
+		String page = req.getParameter("page");
+		String query = "page="+page;
+		
+		try {
+			int num = Integer.parseInt(req.getParameter("num"));
+			OpensourceDTO dto = dao.readOpensource(num);
+			
+			String condition = req.getParameter("condition");
+			String keyword = req.getParameter("keyword");
+			if(condition == null) {
+				condition = "all";
+				keyword = "";
+			}
+			keyword = URLDecoder.decode(keyword, "utf-8");
+			
+			String order = req.getParameter("order");
+			if(order == null) {
+				order = "latest";
+			}
+			if(keyword.length() != 0) {
+				query += "&condition=" + condition + 
+						 "&keyword=" + URLEncoder.encode(keyword, "utf-8") +
+						 "&order=" + order;
+			}
+			if(dto == null) {
+				resp.sendRedirect(cp+"/opensource/list.do?"+query);
+				return;
+			}
+			if(! (info.getUserId().equals(dto.getUserId()))) {
+				resp.sendRedirect(cp+"/opensource/list.do?"+query);
+				return;
+			}
+			
+			List<OpensourceDTO> listFile = dao.listOsFile(num);
+			req.setAttribute("dto", dto);
+			req.setAttribute("listFile", listFile);
+			req.setAttribute("query", query);
+			req.setAttribute("mode", "update");
+			forward(req, resp, "/WEB-INF/views/opensource/write.jsp");
+			return;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		
+		resp.sendRedirect(cp+"/opensource/list.do?"+query);
 	}
 	
 	protected void updateSubmit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 수정 완료
+		HttpSession session = req.getSession();
+		SessionInfo info = (SessionInfo)session.getAttribute("member");
+		String cp = req.getContextPath();
+		OpensourceDAO dao = new OpensourceDAO();
+		String page = req.getParameter("page");
+		String query = "page="+page;
+		try {
+			int num = Integer.parseInt(req.getParameter("num"));
+			OpensourceDTO dto = dao.readOpensource(num);
+			String condition = req.getParameter("condition");
+			String keyword = req.getParameter("keyword");
+			String order = req.getParameter("order");
+			
+			query += makeQuery(condition, keyword, order);
+			
+			if(! info.getUserId().equals(dto.getUserId())) {
+				resp.sendRedirect(cp+"/opensource/list.do?"+query);
+				return;
+			}
+			
+			if(req.getMethod().equalsIgnoreCase("GET")) {
+				resp.sendRedirect(cp+"/opensource/list.do?"+query);
+				return;
+			}
+			
+			try {
+				dto.setNum(Integer.parseInt(req.getParameter("num")));
+				dto.setSubject(req.getParameter("subject"));
+				dto.setContent(req.getParameter("content"));
+				
+				
+				Map<String, String[]> map = doFileUpload(req.getParts(), pathname);
+				if(map != null) {
+					String[] ss = map.get("saveFilenames");
+					String[] oo = map.get("originalFilenames");
+					dto.setSaveFiles(ss);
+					dto.setOriginalFiles(oo);
+				}
+				
+				dao.updateOpensource(dto);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			resp.sendRedirect(cp+"/opensource/article.do?num="+num+"&"+query);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	protected void delete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 삭제
+		HttpSession session = req.getSession();
+		SessionInfo info = (SessionInfo)session.getAttribute("member");
+		
+		OpensourceDAO dao = new OpensourceDAO();
+		String page = req.getParameter("page");
+		String cp = req.getContextPath();
+		String query = "page=" + page;
+		
+		try {
+			int num = Integer.parseInt(req.getParameter("num"));
+			String condition = req.getParameter("condition");
+			String keyword = req.getParameter("keyword");
+			if(condition == null) {
+				condition = "all";
+				keyword = "";
+			}
+			keyword = URLDecoder.decode(keyword, "utf-8");
+			
+			String order = req.getParameter("order");
+			if(order == null) {
+				order = "latest";
+			}
+			if(keyword.length() != 0) {
+				query += "&condition=" + condition + 
+						 "&keyword=" + URLEncoder.encode(keyword, "utf-8") +
+						 "&order=" + order;
+			}
+			
+			
+			OpensourceDTO dto = dao.readOpensource(num);
+			if(dto == null) {
+				resp.sendRedirect(cp+"/opensource/list.do?"+query);
+				return;
+			}
+			
+			if(! (info.getUserId().equals("admin") || info.getUserId().equals(dto.getUserId()))) {
+				resp.sendRedirect(cp+"/opensource/list.do?"+query);
+				return;
+			}
+			
+			List<OpensourceDTO> list = dao.listOsFile(num);
+			for(OpensourceDTO vo : list) {
+				FileManager.doFiledelete(pathname, vo.getSaveFilename());
+			}
+			
+			dao.deleteOsFile("all", num);
+			dao.deleteOpensource(num);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		resp.sendRedirect(cp+"/opensource/list.do?" + query);
 	}
 	
 	protected void deleteFile(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 파일 삭제
+		HttpSession session = req.getSession();
+		SessionInfo info = (SessionInfo)session.getAttribute("member");
+		OpensourceDAO dao = new OpensourceDAO();
+		String cp = req.getContextPath();
+		String page = req.getParameter("page");
+		String query = "page="+page;
+		
+		try {
+			int num = Integer.parseInt(req.getParameter("num"));
+			int fileNum = Integer.parseInt(req.getParameter("fileNum"));
+			OpensourceDTO dto = dao.readOpensource(num);
+			if(! info.getUserId().equals(dto.getUserId())) {
+				resp.sendRedirect(cp+"/opensource/article.do?num="+num+"&"+query);
+				System.out.println("no ID");
+				return;
+			}
+			dto = null;
+			
+			dto = dao.readOsFile(fileNum);
+			String condition = req.getParameter("condition");
+			String keyword = req.getParameter("keyword");
+			String order = req.getParameter("order");
+			query += makeQuery(condition, keyword, order);
+			
+			
+			if(dto != null) {
+				FileManager.doFiledelete(pathname, dto.getSaveFilename());
+				
+				dao.deleteOsFile("one", fileNum);
+			}
+			
+			resp.sendRedirect(cp+"/opensource/update.do?num="+num+"&"+query);
+			return;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		resp.sendRedirect(cp+"/opensource/list.do?"+query);
 	}
 	
 	protected void download(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 다운로드
+		OpensourceDAO dao = new OpensourceDAO();
+		boolean b = false;
+		
+		try {
+			int fileNum = Integer.parseInt(req.getParameter("fileNum"));
+			OpensourceDTO dto = dao.readOsFile(fileNum);
+			
+			if(dto != null) {
+				b = FileManager.doFiledownload(dto.getSaveFilename(), 
+							dto.getOriginalFilename(), pathname, resp);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		if(! b) {
+			resp.setContentType("text/html;charset=utf-8");
+			PrintWriter out = resp.getWriter();
+			out.print("<script>alert('파일다운로드가 불가능합니다.');history.back();</script>");
+		}
+	}
+	
+	protected String makeQuery(String condition, String keyword, String order) {
+		String query = "";
+		try {
+			if(condition == null) {
+				condition = "all";
+				keyword = "";
+			}
+			keyword = URLDecoder.decode(keyword, "utf-8");
+		
+			if(order == null) {
+				order = "latest";
+			}
+			if(keyword.length() != 0) {
+				query += "&condition=" + condition + 
+						 "&keyword=" + URLEncoder.encode(keyword, "utf-8") +
+						 "&order=" + order;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return query;
 	}
 }

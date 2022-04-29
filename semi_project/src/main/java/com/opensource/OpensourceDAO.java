@@ -163,7 +163,7 @@ public class OpensourceDAO {
 		return result;
 	}
 	
-	public List<OpensourceDTO> listNotice(int start, int end, String order) {
+	public List<OpensourceDTO> listOpensource(int start, int end, String order) {
 		List<OpensourceDTO> list = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -221,7 +221,7 @@ public class OpensourceDAO {
 		return list;
 	}
 	
-	public List<OpensourceDTO> listNotice(int start, int end, String condition, String keyword, String order) {
+	public List<OpensourceDTO> listOpensource(int start, int end, String condition, String keyword, String order) {
 		List<OpensourceDTO> list = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -551,7 +551,7 @@ public class OpensourceDAO {
 		
 		return dto;
 	}
-	/*
+	
 	public OpensourceDTO readOsFile(int fileNum) {
 		OpensourceDTO dto = null;
 		PreparedStatement pstmt = null;
@@ -561,7 +561,7 @@ public class OpensourceDAO {
 		try {
 			sql = " SELECT fileNum, num, saveFilename, originalFilename "
 				+ " FROM osfile "
-				+ " WHERE num = ? ";
+				+ " WHERE fileNum = ? ";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, fileNum);
 			rs = pstmt.executeQuery();
@@ -592,6 +592,95 @@ public class OpensourceDAO {
 		}
 		
 		return dto;
-	}*/
+	}
+	
+	public void deleteOpensource(int num) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+		
+		try {
+			sql = "DELETE FROM opensource WHERE num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (Exception e2) {
+				}
+			}
+		}
+	}
+	
+	public void deleteOsFile(String mode, int num) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+		
+		try {
+			if(mode.equals("all")) {
+				sql = "DELETE FROM osfile WHERE num = ?";
+			} else {
+				sql = "DELETE FROM osfile WHERE fileNum = ?";
+			}
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (Exception e2) {
+				}
+			}
+		}
+	}
+	
+	public void updateOpensource(OpensourceDTO dto) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+		
+		try {
+			sql = "UPDATE opensource SET subject=?, content=? WHERE num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, dto.getSubject());
+			pstmt.setString(2, dto.getContent());
+			pstmt.setInt(3, dto.getNum());
+			pstmt.executeUpdate();
+			
+			pstmt.close();
+			pstmt = null;
+			
+			if(dto.getSaveFiles() != null) {
+				sql = "INSERT INTO osFile(fileNum, num, saveFilename, originalFilename) "
+					+ " VALUES (osFile_seq.NEXTVAL, ?, ?, ?)";
+				pstmt = conn.prepareStatement(sql);
+				
+				for(int i=0; i<dto.getSaveFiles().length; i++) {
+					pstmt.setInt(1, dto.getNum());
+					pstmt.setString(2, dto.getSaveFiles()[i]);
+					pstmt.setString(3, dto.getOriginalFiles()[i]);
+					
+					pstmt.executeUpdate();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (Exception e2) {
+				}
+			}
+		}
+	}
 	
 }

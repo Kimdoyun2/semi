@@ -60,11 +60,11 @@ span > img:hover {
 </style>
 
 <script type="text/javascript">
-function deleteNotice() {
+function deleteOpensource() {
 	if(confirm('게시글을 삭제 하시겠습니까?')){
-		let query = "";
-		let url = "";
-		location.href = "";
+		let query = "num=${dto.num}&${query}";
+		let url = "${pageContext.request.contextPath}/opensource/delete.do?"
+		location.href = url + query;
 	}
 }
 
@@ -144,7 +144,7 @@ function likeClick() {
 				<td width="48%">
 				<c:choose>
 					<c:when test="${sessionScope.member.userId=='admin' && sessionScope.member.userId==dto.userId}">
-						<button type="button" class="btn"  onclick="location.href='${pageContext.request.contextPath}/opensource/update.do?num=${dto.num}&page=${page}';">수정</button>
+						<button type="button" class="btn"  onclick="location.href='${pageContext.request.contextPath}/opensource/update.do?num=${dto.num}&${query}';">수정</button>
 					</c:when>
 					<c:otherwise>
 						<button type="button" class="btn" disabled="disabled">수정</button>
@@ -153,7 +153,7 @@ function likeClick() {
 				
 				<c:choose>
 					<c:when test="${sessionScope.member.userId=='admin' && sessionScope.member.userId==dto.userId}">
-						<button type="button" class="btn" onclick="deleteNotice();">삭제</button>
+						<button type="button" class="btn" onclick="deleteOpensource();">삭제</button>
 					</c:when>
 					<c:otherwise>
 						<button type="button" class="btn" disabled="disabled">삭제</button>
