@@ -30,7 +30,7 @@
         </li>
 			
         <li>
-            <a href="#">Q&amp;A</a>
+            <a href="${pageContext.request.contextPath}/qANDa/list.do">Q&amp;A</a>
         </li>
 
         <li>
