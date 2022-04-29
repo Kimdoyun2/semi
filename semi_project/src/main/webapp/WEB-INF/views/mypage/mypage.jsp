@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>dokky</title>
+<title>Insert title here</title>
 <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
 
@@ -81,26 +81,26 @@
 		<table class="table table-mypage">
 			<tr>
 				<td rowspan="4" width="170px">
-					<img class="user" src="http://assets.stickpng.com/images/585e4bf3cb11b227491c339a.png">
+					<img class="user" src="${pageContext.request.contextPath}/resource/images/user.png">
 				</td>
 				<td class="first">이름</td>
-				<td class="second">김도키</td>
+				<td class="second">${dto.userName}</td>
 			</tr>
 			<tr>
 				<td class="first">등급</td>
-				<td class="second">회원</td>
+				<td class="second">${dto.grade}</td>
 			</tr>
 			<tr>
 				<td class="first">가입일</td>
-				<td class="second">2022.04.22</td>
+				<td class="second">${dto.register_date}</td>
 			</tr>
 			<tr>
 				<td class="first">작성글</td>
-				<td class="second">1</td>
+				<td class="second">${boardCount}개</td>
 			</tr>		
 		</table>
 		
-		<h4>작성글</h4>
+		<h4>작성글[ ${page} 페이지 | ${total_page} 페이지 ]</h4>
 		<table class="table table-border table-list">
 			<thead>
 				<tr>
@@ -111,52 +111,31 @@
 			</thead>
 			
 			<tbody>
+				<c:forEach var="vo" items="${list}">
 					<tr>
-						<td>국비학원 세미 프로젝트</td>
-						<td>2022.04.22</td>
-						<td>1</td>
+						<td>
+						<a>${vo.subject}</a>
+						</td>
+						<td>${vo.reg_date}</td>
+						<td>${vo.hitCount}</td>
 					</tr>
+				</c:forEach>
+			
 			</tbody>
 			
 		</table>
 		
 		<div class="page-box">
-			1 2 3
+			${paging}
 		</div>
-		
-		<table class="table">
-			<tr>
-				<td width="100">
-					<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/notice/list.do';">새로고침</button>
-				</td>
-				<td align="center">
-					<form name="searchForm" action="${pageContext.request.contextPath}/notice/list.do" method="post">
-						<select name="condition" class="form-select">
-							<option value="all" ${condition=="all"?"selected='selected'":""}>제목+내용</option>
-							<option value="userName" ${condition=="userName"?"selected='selected'":""}>작성자</option>
-							<option value="reg_date" ${condition=="reg_date"?"selected='selected'":""}>등록일</option>
-							<option value="subject" ${condition=="subject"?"selected='selected'":""}>제목</option>
-							<option value="content" ${condition=="content"?"selected='selected'":""}>내용</option>
-						</select>
-						<input type="text" name="keyword" value="${keyword}" class="form-control">
-						<button type="button" class="btn" onclick="searchList();">검색</button>
-					</form>
-				</td>
-				<td align="right" width="100">
-					<c:if test="${sessionScope.member.userId == 'admin'}">						
-						<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/notice/write.do';">글올리기</button>
-					</c:if>
-				</td>
-			</tr>
-		</table>	
 
 	</div>
 </main>
 
 <footer>
     <jsp:include page="/WEB-INF/views/layout/footer.jsp"></jsp:include>
+
+<jsp:include page="/WEB-INF/views/layout/staticFooter.jsp"/></jsp:include>
 </footer>
-
-
 </body>
 </html>
