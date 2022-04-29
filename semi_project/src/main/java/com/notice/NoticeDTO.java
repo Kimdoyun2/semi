@@ -11,6 +11,7 @@ public class NoticeDTO {
 	private String content;
 	private String reg_date;
 	private int hitCount;
+	private int likeCount;
 	
 	private long gap;
 	
@@ -110,6 +111,12 @@ public class NoticeDTO {
 	}
 	public void setOriginalFiles(String[] originalFiles) {
 		this.originalFiles = originalFiles;
+	}
+	public int getLikeCount() {
+		return likeCount;
+	}
+	public void setLikeCount(int likeCount) {
+		this.likeCount = likeCount;
 	}
 	
 	

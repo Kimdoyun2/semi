@@ -225,8 +225,6 @@ public class NoticeServlet extends MyUploadServlet {
 			}
 			dto.setContent(req.getParameter("content"));
 			
-			dao.insertNotice(dto);
-			
 			// 파일
 			Map<String, String[]> map = doFileUpload(req.getParts(), pathname);
 			if(map != null) {

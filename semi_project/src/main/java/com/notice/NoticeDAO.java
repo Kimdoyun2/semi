@@ -11,20 +11,20 @@ import com.util.DBConn;
 
 public class NoticeDAO {
 private Connection conn = DBConn.getConnection();
-private ResultSet rs;
+
 	
 	public void insertNotice(NoticeDTO dto) throws SQLException {
 		PreparedStatement pstmt = null;
-		rs = null;
+		ResultSet rs = null;
 		String sql;
 		int seq;
 		
 		try {
 			// 다음 시퀀스값 가져오기
-			sql = "SELECT notice_seq.NEXTVAL FROM dual";
+			sql = "SELECT freebbs_seq.NEXTVAL FROM dual";
 			
 			pstmt = conn.prepareStatement(sql);
-			pstmt.executeUpdate();
+			rs = pstmt.executeQuery();
 			
 			seq = 0;
 			if(rs.next()) {
@@ -38,8 +38,8 @@ private ResultSet rs;
 			pstmt = null;
 			
 			//notice 테이블에 게시물 추가
-			sql = "INSERT INTO notice(num, notice, userId, subject, content, hitCount, reg_date) "
-					+" VALUES (?, ?, ?, ?, ?, 0,  SYSDATE)";
+			sql = "INSERT INTO freebbs(num, notice, userId, subject, content, hitCount, reg_date, likeCount ) "
+					+" VALUES (?, ?, ?, ?, ?, 0,  SYSDATE, 0 )";
 			
 			pstmt = conn.prepareStatement(sql);
 			
@@ -56,8 +56,8 @@ private ResultSet rs;
 			
 			// noticeFile 테이블에 업로드된 파일이름 저장
 			if(dto.getSaveFiles() !=null) {
-				sql = "INSERT INTO noticeFile(fileNum, num, saveFilename, originalFilename) "
-					+ " VALUES(noticeFile_seq.NEXTVAL, ?, ?, ?)";
+				sql = "INSERT INTO freebbsFile(fileNum, num, saveFilename, originalFilename) "
+					+ " VALUES(freebbsFile_seq.NEXTVAL, ?, ?, ?)";
 				
 				pstmt = conn.prepareStatement(sql);
 			
@@ -98,7 +98,7 @@ private ResultSet rs;
 		String sql;
 		
 		try {
-			sql = "SELECT COUNT(*) FROM notice";
+			sql = "SELECT COUNT(*) FROM freebbs";
 			
 			pstmt = conn.prepareStatement(sql);
 			rs = pstmt.executeQuery();
@@ -135,8 +135,8 @@ private ResultSet rs;
 		String sql;
 		
 		try {
-			sql = "SELECT COUNT(*) FROM notice n ";
-			sql += " JOIN member1 m ON n.userId = m.userId ";
+			sql = "SELECT COUNT(*) FROM freebbs f ";
+			sql += " JOIN member1 m ON f.userId = m.userId ";
 			
 			if(condition.equals("all")) {
 				sql+= " WHERE INSTR(subject, ?) >= 1 OR INSTR(content, ?)>= 1";
@@ -188,9 +188,9 @@ private ResultSet rs;
 		try {
 			sb.append("SELECT * FROM ( ");
 			sb.append(" SELECT ROWNUM rnum, tb.* FROM ( ");
-			sb.append("  SELECT num, notice, userName, subject, hitCount, reg_date ");
-			sb.append("   FROM notice n ");
-			sb.append("    JOIN member1 m ON n.userId = m.userId ");
+			sb.append("  SELECT num, notice, userName, subject, hitCount, reg_date, likeCount ");
+			sb.append("   FROM freebbs f ");
+			sb.append("    JOIN member1 m ON f.userId = m.userId ");
 			sb.append("    ORDER BY num DESC ");
 			sb.append(" ) tb WHERE ROWNUM <= ? ");
 			sb.append(" ) WHERE rnum >= ?");
@@ -208,6 +208,7 @@ private ResultSet rs;
 				dto.setUserName(rs.getString("userName"));
 				dto.setHitCount(rs.getInt("hitCount"));
 				dto.setReg_date(rs.getString("reg_date"));
+				dto.setLikeCount(rs.getInt("likeCount"));
 				
 				list.add(dto);
 				
@@ -242,9 +243,9 @@ private ResultSet rs;
 		try {
 			sb.append("SELECT * FROM ( ");
 			sb.append(" SELECT ROWNUM rnum, tb.* FROM ( ");
-			sb.append("  SELECT num, notice, userName, subject, hitCount, reg_date ");
-			sb.append("   FROM notice n ");
-			sb.append("    JOIN member1 m ON n.userId = m.userId ");
+			sb.append("  SELECT num, notice, userName, subject, hitCount, reg_date, likeCount ");
+			sb.append("   FROM freebbs f ");
+			sb.append("    JOIN member1 m ON f.userId = m.userId ");
 			if(condition.equals("all")) {
 				sb.append(" WHERE INSTR(subject, ?) >= 1 OR INSTR(content, ?)>= 1");
 			} else if (condition.equals("reg_date")) {
@@ -280,6 +281,7 @@ private ResultSet rs;
 				dto.setUserName(rs.getString("userName"));
 				dto.setHitCount(rs.getInt("hitCount"));
 				dto.setReg_date(rs.getString("reg_date"));
+				dto.setLikeCount(rs.getInt("likeCount"));
 				
 				list.add(dto);
 				
@@ -313,10 +315,10 @@ private ResultSet rs;
 		String sql;
 		
 		try {
-			sql = "SELECT num, notice, userName, subject, hitCount, "
+			sql = "SELECT num, notice, userName, subject, hitCount, likeCount, "
 				+ " TO_CHAR(reg_date, 'YYYY-MM-DD') reg_date "
-				+ " FROM notice n "
-				+ " JOIN member1 m ON n.userId = m.userId "
+				+ " FROM freebbs f "
+				+ " JOIN member1 m ON f.userId = m.userId "
 				+ " WHERE notice = 1 "
 				+ " ORDER BY num DESC ";
 			
@@ -331,6 +333,7 @@ private ResultSet rs;
 				dto.setUserName(rs.getString("userName"));
 				dto.setHitCount(rs.getInt("hitCount"));
 				dto.setReg_date(rs.getString("reg_date"));
+				dto.setLikeCount(rs.getInt("likeCount"));
 				
 				list.add(dto);
 				
@@ -364,10 +367,10 @@ private ResultSet rs;
 		String sql;
 		
 		try {
-			sql = "SELECT num, n.userId, userName, notice, subject, content, "
-				+ " reg_date, hitCount "
-				+ " FROM notice n "
-				+ " JOIN member1 m ON n.userId = m.userId "
+			sql = "SELECT num, f.userId, userName, notice, subject, content, "
+				+ " reg_date, hitCount, likeCount "
+				+ " FROM freebbs f "
+				+ " JOIN member1 m ON f.userId = m.userId "
 				+ " WHERE num = ? ";
 			
 			pstmt = conn.prepareStatement(sql);
@@ -386,6 +389,7 @@ private ResultSet rs;
 				dto.setSubject(rs.getString("subject"));
 				dto.setReg_date(rs.getString("reg_date"));
 				dto.setHitCount(rs.getInt("hitCount"));
+				dto.setLikeCount(rs.getInt("likeCount"));
 			
 			}
 		} catch (Exception e) {
@@ -420,8 +424,8 @@ private ResultSet rs;
 				if (keyword != null && keyword.length() != 0) {
 					sb.append(" SELECT * FROM ( ");
 					sb.append("    SELECT num, subject ");
-					sb.append("    FROM notice n ");
-					sb.append("    JOIN member1 m ON n.userId = m.userId ");
+					sb.append("    FROM freebbs f ");
+					sb.append("    JOIN member1 m ON f.userId = m.userId ");
 					sb.append("    WHERE ( num > ? ) ");
 					if (condition.equals("all")) {
 						sb.append("   AND ( INSTR(subject, ?) >= 1 OR INSTR(content, ?) >= 1 ) ");
@@ -443,7 +447,7 @@ private ResultSet rs;
 					}
 				} else {
 					sb.append(" SELECT * FROM ( ");
-					sb.append("     SELECT num, subject FROM notice ");
+					sb.append("     SELECT num, subject FROM freebbs ");
 					sb.append("     WHERE num > ? ");
 					sb.append("     ORDER BY num ASC ");
 					sb.append(" ) WHERE ROWNUM = 1 ");
@@ -493,8 +497,8 @@ private ResultSet rs;
 				if (keyword != null && keyword.length() != 0) {
 					sb.append(" SELECT * FROM ( ");
 					sb.append("    SELECT num, subject ");
-					sb.append("    FROM notice n ");
-					sb.append("    JOIN member1 m ON n.userId = m.userId ");
+					sb.append("    FROM freebbs f ");
+					sb.append("    JOIN member1 m ON f.userId = m.userId ");
 					sb.append("    WHERE ( num < ? ) ");
 					if (condition.equals("all")) {
 						sb.append("   AND ( INSTR(subject, ?) >= 1 OR INSTR(content, ?) >= 1 ) ");
@@ -516,7 +520,7 @@ private ResultSet rs;
 					}
 				} else {
 					sb.append(" SELECT * FROM ( ");
-					sb.append("     SELECT num, subject FROM notice ");
+					sb.append("     SELECT num, subject FROM freebbs ");
 					sb.append("     WHERE num < ? ");
 					sb.append("     ORDER BY num DESC ");
 					sb.append(" ) WHERE ROWNUM = 1 ");
@@ -560,7 +564,7 @@ private ResultSet rs;
 		String sql;
 		
 		try {
-			sql ="UPDATE notice SET hitCount=hitCount+1 WHERE num = ? ";
+			sql ="UPDATE freebbs SET hitCount=hitCount+1 WHERE num = ? ";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, num);
 			
@@ -579,6 +583,7 @@ private ResultSet rs;
 		}
 	}
 	
+	
 	public List<NoticeDTO> listnoticeFile(int num){
 		// 해당 게시물의 모든 첨부파일 리스트 가져오기
 		List<NoticeDTO> list = new ArrayList<NoticeDTO>();
@@ -587,7 +592,7 @@ private ResultSet rs;
 		String sql;
 		
 		try {
-			sql = "SELECT fileNum, saveFilename, originalFilename FROM noticeFile "
+			sql = "SELECT fileNum, saveFilename, originalFilename FROM freebbsFile "
 					+ " WHERE num = ? ";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, num);
@@ -630,7 +635,7 @@ private ResultSet rs;
 		String sql;
 		
 		try {
-			sql = "SELECT fileNum, num, saveFilename, originalFilename FROM noticeFile "
+			sql = "SELECT fileNum, num, saveFilename, originalFilename FROM freebbsFile "
 					+ " WHERE fileNum = ? "; 
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, fileNum);
@@ -670,7 +675,7 @@ private ResultSet rs;
 		String sql;
 		
 		try {
-			sql = "UPDATE notice SET notice=?, subject=?, content=?, WHERE num=?";
+			sql = "UPDATE freebbs SET notice=?, subject=?, content=?, WHERE num=?";
 			pstmt = conn.prepareStatement(sql);
 			
 			pstmt.setInt(1, dto.getNotice());
@@ -685,8 +690,8 @@ private ResultSet rs;
 			
 			//첨부 파일이 존재하는 경우 첨부파일을 INSERT 
 			if(dto.getSaveFiles() != null) {
-				sql = "INSERT INTO noticeFile(fileNum, num, saveFilename, originalFilename) "
-						+ " VALUES (noticeFile_seq.NEXTVAL, ?, ?, ?)";
+				sql = "INSERT INTO freebbsFile(fileNum, num, saveFilename, originalFilename) "
+						+ " VALUES (freebbsFile_seq.NEXTVAL, ?, ?, ?)";
 			pstmt = conn.prepareStatement(sql);
 			
 			for(int i =0; i<dto.getSaveFiles().length; i++) {
@@ -718,9 +723,9 @@ private ResultSet rs;
 		
 		try {
 			if(mode.equals("all")) { // 게시글이 삭제된 경우 게시글의 모든 첨부 파일 삭제
-				sql = "DELETE FROM noticeFile WHERE num=?";
+				sql = "DELETE FROM freebbsFile WHERE num=?";
 			}else { // 해당 첨부 파일만 삭제
-				sql = "DELETE FROM noticeFile WHERE fileNum=?";
+				sql = "DELETE FROM freebbsFile WHERE fileNum=?";
 			}
 		
 			pstmt = conn.prepareStatement(sql);
@@ -748,7 +753,7 @@ private ResultSet rs;
 			String sql;
 			
 			try {
-				sql = "DELETE FROM notice WHERE num =?";
+				sql = "DELETE FROM freebbs WHERE num =?";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setInt(1, num);
 				pstmt.executeUpdate();
