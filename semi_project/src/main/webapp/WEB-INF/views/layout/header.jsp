@@ -18,8 +18,6 @@
 				<span style="color:#243b73;">${sessionScope.member.userName}</span>님
 					&nbsp;&nbsp;
 				<a class="a2" href="${pageContext.request.contextPath}/member/logout.do">로그아웃</a>
-					&nbsp;|&nbsp;
-				<a href="${pageContext.request.contextPath}/member/pwd.do?mode=update">정보수정</a>
 			</c:if>
         </div>
     </div>
@@ -28,8 +26,7 @@
 <div class="menu">
     <ul class="nav">
         <li>
-            <a href="${pageContext.request.contextPath}/lecture/list.do
-">강의</a>
+            <a href="#">강의</a>
         </li>
 			
         <li>
@@ -37,8 +34,7 @@
         </li>
 
         <li>
-            <a href="${pageContext.request.contextPath}/opensource/list.do
-">오픈소스</a>
+            <a href="#">오픈소스</a>
         </li>
 
         <li>
@@ -51,7 +47,7 @@
 
         <c:if test="${not empty sessionScope.member}">
         <li style="float: right;">
-            <a href="#">마이페이지</a>
+            <a href="${pageContext.request.contextPath}/mypage/mypage.do">마이페이지</a>
         </li>
         </c:if>
     </ul>      
