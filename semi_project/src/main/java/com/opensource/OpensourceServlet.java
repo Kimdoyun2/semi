@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.json.JSONObject;
 
 import com.member.SessionInfo;
 import com.util.FileManager;
@@ -64,10 +67,12 @@ public class OpensourceServlet extends MyUploadServlet {
 			deleteFile(req, resp);
 		} else if(uri.indexOf("download.do") != -1) {
 			download(req, resp);
+		} else if(uri.indexOf("insertOsLike.do") != -1) {
+			insertOsLike(req, resp);
 		}
 	}
 	
-	protected void list(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void list(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		OpensourceDAO dao = new OpensourceDAO();
 		MyUtil myutil = new MyUtil();
 		String cp = req.getContextPath();
@@ -157,12 +162,12 @@ public class OpensourceServlet extends MyUploadServlet {
 		forward(req, resp, "/WEB-INF/views/opensource/list.jsp");
 	}
 	
-	protected void writeForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void writeForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setAttribute("mode", "write");
 		forward(req, resp, "/WEB-INF/views/opensource/write.jsp");
 	}
 	
-	protected void writeSubmit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void writeSubmit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		HttpSession session = req.getSession();
 		SessionInfo info = (SessionInfo)session.getAttribute("member");
 		
@@ -195,9 +200,13 @@ public class OpensourceServlet extends MyUploadServlet {
 	}
 	
 	
-	protected void article(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void article(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 글 보기
 		OpensourceDAO dao = new OpensourceDAO();
+		
+		HttpSession session = req.getSession();
+		SessionInfo info = (SessionInfo)session.getAttribute("member");
+		
 		String cp = req.getContextPath();
 		String page = req.getParameter("page");
 		String query = "page="+page;
@@ -219,6 +228,8 @@ public class OpensourceServlet extends MyUploadServlet {
 			}
 			dto.setContent(dto.getContent().replaceAll("\n", "<br>"));
 			
+			boolean isUserLike = dao.isUserOsLike(num, info.getUserId());
+			
 			OpensourceDTO preReadOs = dao.preReadOs(num, condition, keyword);
 			OpensourceDTO nextReadOs = dao.nextReadOs(num, condition, keyword);
 			
@@ -230,6 +241,7 @@ public class OpensourceServlet extends MyUploadServlet {
 			req.setAttribute("listFile", listFile);
 			req.setAttribute("query", query);
 			req.setAttribute("page", page);
+			req.setAttribute("isUserLike", isUserLike);
 			
 			forward(req, resp, "/WEB-INF/views/opensource/article.jsp");
 			return;
@@ -240,7 +252,7 @@ public class OpensourceServlet extends MyUploadServlet {
 		resp.sendRedirect(cp+"/opensource/list.do?"+query);
 	}
 	
-	protected void updateForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void updateForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 수정 폼
 		HttpSession session = req.getSession();
 		SessionInfo info = (SessionInfo)session.getAttribute("member");
@@ -293,7 +305,7 @@ public class OpensourceServlet extends MyUploadServlet {
 		resp.sendRedirect(cp+"/opensource/list.do?"+query);
 	}
 	
-	protected void updateSubmit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void updateSubmit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 수정 완료
 		HttpSession session = req.getSession();
 		SessionInfo info = (SessionInfo)session.getAttribute("member");
@@ -345,7 +357,7 @@ public class OpensourceServlet extends MyUploadServlet {
 		}
 	}
 	
-	protected void delete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void delete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 삭제
 		HttpSession session = req.getSession();
 		SessionInfo info = (SessionInfo)session.getAttribute("member");
@@ -402,7 +414,7 @@ public class OpensourceServlet extends MyUploadServlet {
 		resp.sendRedirect(cp+"/opensource/list.do?" + query);
 	}
 	
-	protected void deleteFile(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void deleteFile(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 파일 삭제
 		HttpSession session = req.getSession();
 		SessionInfo info = (SessionInfo)session.getAttribute("member");
@@ -444,7 +456,7 @@ public class OpensourceServlet extends MyUploadServlet {
 		resp.sendRedirect(cp+"/opensource/list.do?"+query);
 	}
 	
-	protected void download(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	private void download(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 다운로드
 		OpensourceDAO dao = new OpensourceDAO();
 		boolean b = false;
@@ -468,7 +480,7 @@ public class OpensourceServlet extends MyUploadServlet {
 		}
 	}
 	
-	protected String makeQuery(String condition, String keyword, String order) {
+	private String makeQuery(String condition, String keyword, String order) {
 		String query = "";
 		try {
 			if(condition == null) {
@@ -490,5 +502,43 @@ public class OpensourceServlet extends MyUploadServlet {
 		}
 		
 		return query;
+	}
+	
+	// 게시물 좋아요 저장
+	private void insertOsLike(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		OpensourceDAO dao = new OpensourceDAO();
+		
+		HttpSession session = req.getSession();
+		SessionInfo info = (SessionInfo)session.getAttribute("member");
+		
+		String state = "false";
+		int osLikeCount = 0;
+		
+		try {
+			int num = Integer.parseInt(req.getParameter("num"));
+			String isNoLike = req.getParameter("isNoLike");
+			
+			if(isNoLike.equals("true")) {
+				dao.insertOsLike(num, info.getUserId());
+			} else {
+				dao.deleteOsLike(num, info.getUserId());
+			}
+			
+			osLikeCount = dao.countOsLike(num);
+			
+			state = "true";
+		} catch (SQLException e) {
+			state = "liked";
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		JSONObject job = new JSONObject();
+		job.put("state", state);
+		job.put("osLikeCount", osLikeCount);
+		
+		resp.setContentType("text/html;charset=utf-8");
+		PrintWriter out = resp.getWriter();
+		out.print(job.toString());
 	}
 }

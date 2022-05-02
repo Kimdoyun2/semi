@@ -57,9 +57,14 @@ span > img:hover {
 .table-article tr > td {
 	padding-left: 5px; padding-right: 5px;
 }
+
+.btnSendOsLike {
+	background: #abb6cc;
+}
 </style>
 
 <script type="text/javascript">
+<c:if test="${sessionScope.member.userId==dto.userId || sessionScope.member.userId=='admin'}">
 function deleteOpensource() {
 	if(confirm('게시글을 삭제 하시겠습니까?')){
 		let query = "num=${dto.num}&${query}";
@@ -67,11 +72,74 @@ function deleteOpensource() {
 		location.href = url + query;
 	}
 }
+</c:if>
+</script>
 
-function likeClick() {
-	
+<script type="text/javascript">
+function login() {
+	location.href="${pageContext.request.contextPath}/member/login.do";
 }
 
+function ajaxFun(url, method, query, dataType, fn) {
+	$.ajax({
+		type:method,
+		url:url,
+		data:query,
+		dataType:dataType,
+		success:function(data) {
+			fn(data);
+		},
+		beforeSend:function(jqXHR) {
+			jqXHR.setRequestHeader("AJAX", true);
+		},
+		error:function(jqXHR) {
+			if(jqXHR.status === 403) {
+				login();
+				return false;
+			} else if(jqXHR.status === 400) {
+				alert("요청 처리가 실패했습니다.");
+				return false;
+			}
+			
+			console.log(jqXHR.responseText);
+		}
+	});
+}
+
+// 게시글 공감 여부
+$(function() {
+	$(".btnSendOsLike").click(function() {
+		const $i = $(this).find("i");
+		let isNoLike = $i.css("color") == "rgb(255, 255, 255)";
+		let msg = isNoLike ? "게시글에 좋아요를 누르시겠습니까? " : "게시글에 좋아요를 취소하시겠습니까? ";
+		
+		if(! confirm(msg)) {
+			return false;
+		}
+		
+		let url = "${pageContext.request.contextPath}/opensource/insertOsLike.do";
+		let num = "${dto.num}";
+		let query = "num="+num+"&isNoLike="+isNoLike;
+		
+		const fn = function(data) {
+			let state = data.state;
+			if(state === "true") {
+				let color = "white";
+				if(isNoLike) {
+					color = "red";
+				}
+				$i.css("color", color);
+				
+				let count = data.osLikeCount;
+				$("#osLikeCount").text(count);
+			} else if(state === "liked") {
+				alert("좋아요는 한번만 가능합니다.");
+			}
+		};
+		
+		ajaxFun(url, "post", query, "json", fn);
+	});
+});
 </script>
 </head>
 <body>
@@ -101,13 +169,19 @@ function likeClick() {
 						이름 : ${dto.userName }
 					</td>
 					<td align="right">
-						${dto.reg_date } | 조회 ${dto.hitCount } | 좋아요 ${dto.likeCount }
+						${dto.reg_date } | 조회 ${dto.hitCount }
+					</td>
+				</tr>
+				
+				<tr style="border-bottom: none;">
+					<td colspan="2" valign="top" height="200">
+						${dto.content }
 					</td>
 				</tr>
 				
 				<tr>
-					<td colspan="2" valign="top" height="200">
-						${dto.content }
+					<td colspan="2" align="center" style="padding-bottom: 20px;">
+						<button type="button" class="btn btnSendOsLike" title="좋아요"><i class="fa-solid fa-heart" style="color: ${isUserLike?'red':'white'}"></i>&nbsp;&nbsp;<span id="osLikeCount">${dto.likeCount}</span></button>
 					</td>
 				</tr>
 				
@@ -159,9 +233,6 @@ function likeClick() {
 						<button type="button" class="btn" disabled="disabled">삭제</button>
 					</c:otherwise>
 				</c:choose>
-				</td>
-				<td>
-					<span><img src="${pageContext.request.contextPath}/resource/images/like_false.png" onclick="likeClick();"></span>
 				</td>
 				<td align="right">
 					<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/opensource/list.do?${query}';">리스트</button>

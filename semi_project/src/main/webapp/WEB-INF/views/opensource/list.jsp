@@ -102,7 +102,7 @@ function orderChange() {
 <main>
 	<div class="body-container" style="width: 700px;">
 		<div class="body-title">
-			<h3><i class="fas fa-clipboard"></i> 오픈소스 </h3>
+			<h3><i class="fa-solid fa-file-lines"></i> 오픈소스 </h3>
 		</div>
         
 		<table class="table">

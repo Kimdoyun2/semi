@@ -367,6 +367,44 @@ public class OpensourceDAO {
 		return dto;
 	}
 	
+	// 로그인 유저의 게시글 좋아요 유무
+	public boolean isUserOsLike(int num, String userId) {
+		boolean result = false;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql;
+		
+		try {
+			sql = "SELECT num, userId FROM osLike WHERE num = ? AND userId = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.setString(2, userId);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				result = true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) {
+				try {
+					rs.close();
+				} catch (Exception e2) {
+				}
+			}
+			
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (Exception e2) {
+				}
+			}
+		}
+		
+		return result;
+	}
+	
 	public List<OpensourceDTO> listOsFile(int num) {
 		List<OpensourceDTO> list = new ArrayList<>();
 		PreparedStatement pstmt = null;
@@ -681,6 +719,282 @@ public class OpensourceDAO {
 				}
 			}
 		}
+	}
+	
+	// 게시물 좋아요 추가
+	public void insertOsLike(int num, String userId) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+		
+		try {
+			sql = "INSERT INTO osLike(num, userId) VALUES(?, ?)";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.setString(2, userId);
+	
+			pstmt.executeUpdate();
+			
+			pstmt.close();
+			pstmt = null;
+			
+			sql = "UPDATE opensource SET likeCount=likeCount+1 WHERE num = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (Exception e2) {
+				}
+			}
+		}
+	}
+	
+	// 게시물 공감 삭제
+	public void deleteOsLike(int num, String userId) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+		
+		try {
+			sql = "DELETE FROM osLike WHERE num = ? AND userId = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.setString(2, userId);
+			pstmt.executeUpdate();
+			pstmt.close();
+			pstmt = null;
+			
+			sql = "UPDATE opensource SET likeCount=likeCount-1 WHERE num = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (Exception e2) {
+				}
+			}
+		}
+	}
+	
+	// 게시물 좋아요 개수
+	public int countOsLike(int num) {
+		int result = 0;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql;
+		
+		try {
+			sql = "SELECT NVL(COUNT(*), 0) FROM osLike WHERE num = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				result = rs.getInt(1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e2) {
+				}
+			}
+			
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e2) {
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	// 게시글 댓글 추가
+	public void insertReply(ReplyDTO dto) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+		
+		try {
+			sql = " INSERT INTO osReply(replyNum, num, userId, content, reg_date, answer) "
+				+ " VALUES (osReply_seq.NEXTVAL, ?, ?, ?, SYSDATE, ?) ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, dto.getNum());
+			pstmt.setString(2, dto.getUserId());
+			pstmt.setString(3, dto.getContent());
+			pstmt.setInt(4, dto.getAnswer());
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (Exception e2) {
+				}
+			}
+		}
+	}
+	
+	// 게시물 댓글 개수
+	public int replyCount(int num) {
+		int result = 0;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql;
+		
+		try {
+			sql = "SELECT NVL(COUNT(*),0) FROM osReply WHERE num = ? AND answer = 0";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				result = rs.getInt(1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e2) {
+				}
+			}
+			
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e2) {
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	public List<ReplyDTO> listReply(int num, int start, int end) {
+		List<ReplyDTO> list = new ArrayList<ReplyDTO>();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql;
+		
+		try {
+			sql = "SELECT *FROM ( "
+				+ "  SELECT ROWNUM rnum th.* FROM ("
+				+ "    SELECT o.replyNum, num, o.userName, content, o.reg_date, "
+				+ "           NVL(answerCount, 0) answerCount "
+				+ "    FROM osReply o "
+				+ "    JOIN member1 m ON m.userId = o.userId "
+				+ "    LEFT OUTER JOIN ( "
+				+ "       SELECT answer, COUNT(*) answerCount "
+				+ "       FROM osReply WHERE answer != 0 "
+				+ "       GROUP BY answer "
+				+ "    ) a ON o.replyNum = a.answer "
+				+ "    WHERE num = ? AND o.answer = 0 "
+				+ "    ORDER BY o.replyNum DESC "
+				+ "  ) tb WHERE ROWNUM <= ? "
+				+ " WHERE rnum >= ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.setInt(2, end);
+			pstmt.setInt(3, start);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				ReplyDTO dto = new ReplyDTO();
+				
+				dto.setReplyNum(rs.getInt("replyNum"));
+				dto.setNum(rs.getInt("num"));
+				dto.setUserId(rs.getString("userId"));
+				dto.setUserName(rs.getString("userName"));
+				dto.setContent(rs.getString("content"));
+				dto.setReg_date(rs.getString("reg_date"));
+				dto.setAnswerCount(rs.getInt("answerCount"));
+				
+				list.add(dto);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e2) {
+				}
+			}
+			
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e2) {
+				}
+			}
+		}
+		
+		return list;
+	}
+	
+	public ReplyDTO readReply(int num) {
+		ReplyDTO dto = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql;
+		
+		try {
+			sql = " SELECT replyNum, num, o.userId, userName, content, o.reg_date "
+				+ " FROM osReply o "
+				+ " JOIN member1 m ON m.userId = o.userId "
+				+ " WHERE replyNum = ? ";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				dto = new ReplyDTO();
+				
+				dto.setReplyNum(rs.getInt("replyNum"));
+				dto.setNum(rs.getInt("num"));
+				dto.setUserId(rs.getString("userId"));
+				dto.setUserName(rs.getString("userName"));
+				dto.setContent(rs.getString("content"));
+				dto.setReg_date(rs.getString("reg_date"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e2) {
+				}
+			}
+			
+			if(pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e2) {
+				}
+			}
+		}
+		
+		return dto;
 	}
 	
 }
