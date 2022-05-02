@@ -87,7 +87,7 @@ function sendBoard() {
 <main>
 	<div class="body-container" style="width: 700px;">
 		<div class="body-title">
-			<h3><i class="fas fa-clipboard-list"></i> 강의 </h3> 
+			<h3><i class="fas fa-book"></i> 강의 </h3> 
 		</div>
         
 		<form name="boardForm" method="post" enctype="multipart/form-data">
@@ -138,10 +138,10 @@ function sendBoard() {
 				<c:if test="${mode=='update'}">
 					<c:forEach var = "vo" items="${listFile}">
 						<tr>
-							<td>첨부된파일</td>
+							<td>첨부 파일</td>
 							<td>
 								<p>
-								<a href="javascript:deleteFile('${vo.fileNum}');"><i class="far far-thash-alt"></i></a>
+								<a href="javascript:deleteFile('${vo.fileNum}');"><i class="fas fa-trash-alt"></i></a>
 								${vo.originalFilename}
 								</p>
 							</td>
@@ -155,11 +155,10 @@ function sendBoard() {
 					<td align="center">
 						<button type="button" class="btn" onclick="sendBoard();">${mode=="update"?"수정완료":"등록하기"}</button>
 						<button type="reset" class="btn">다시입력</button>
-						<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/lecture/list.do';">${mode=="update"?"수정취소":"등록취소"}</button>
+						<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/lecture/list.do?${query}';">${mode=="update"?"수정취소":"등록취소"}</button>
 						<c:if test="${mode=='update'}">
 							<input type="hidden" name="num" value="${dto.num}">
 							<input type="hidden" name="page" value="${page}">
-							
 						</c:if>
 					</td>
 				</tr>

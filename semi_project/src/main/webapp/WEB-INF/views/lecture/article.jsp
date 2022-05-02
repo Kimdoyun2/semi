@@ -29,9 +29,9 @@ font-weight: 700;
 
 function deleteLecture() {
 	if(confirm('게시글을 삭제 하시겠습니까?')){
-		let query = "";
-		let url = "";
-		location.href = "";
+		let query = "num=${dto.num}&${query}";
+        let url = "${pageContext.request.contextPath}/lecture/delete.do?" + query;
+    	location.href = url;
 	}
 }
 </script>
@@ -85,7 +85,7 @@ function deleteLecture() {
 				<tr>
 					<td colspan="2">
 						이전글 : 
-						<c:if test="${not empty preReadNotice}">
+						<c:if test="${not empty preReadLecture}">
 							<a href="${pageContext.request.contextPath}/lecture/article.do?${query}&num=${preReadLecture.num}">${preReadLecture.subject}</a>
 						</c:if>
 					</td>
@@ -93,7 +93,7 @@ function deleteLecture() {
 				<tr>
 					<td colspan="2">
 						다음글 : 
-						<c:if test="${not empty preReadNotice}">
+						<c:if test="${not empty nextReadLecture}">
 							<a href="${pageContext.request.contextPath}/lecture/article.do?${query}&num=${nextReadLecture.num}">${nextReadLecture.subject}</a>
 						</c:if>
 					</td>
@@ -106,7 +106,7 @@ function deleteLecture() {
 				<td width="48%">
 				<c:choose>
 					<c:when test="${sessionScope.member.userId=='admin'}">
-						<button type="button" class="btn"  onclick="location.href='${pageContext.request.contextPath}/lecture/update.do?num=${dto.num}&page=${page}';">수정</button>
+						<button type="button" class="btn"  onclick="location.href='${pageContext.request.contextPath}/lecture/update.do?${query}&num=${dto.num}';">수정</button>
 					</c:when>
 					<c:otherwise>
 						<button type="button" class="btn" disabled="disabled">수정</button>
@@ -121,9 +121,6 @@ function deleteLecture() {
 						<button type="button" class="btn" disabled="disabled">삭제</button>
 					</c:otherwise>
 				</c:choose>
-				</td>
-				<td>
-					<button type="button" class="btn"><i class="fas fa-thumbs-up"></i></button>
 				</td>
 				<td align="right">
 					<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/lecture/list.do?${query}';">리스트</button>

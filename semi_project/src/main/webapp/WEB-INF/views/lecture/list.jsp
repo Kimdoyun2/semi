@@ -21,7 +21,7 @@
 
 .select-category {
 	background-color: #243b73; color:#fff;
-	width: 75px;
+	width: 88px;
 }
 
 .table-list thead > tr:first-child{
@@ -35,7 +35,7 @@
 }
 
 .table-list .category {
-	width: 90px; background: #f1f3f7;
+	width: 95px; background: #f1f3f7;
 }
 
 .table-list .num {
