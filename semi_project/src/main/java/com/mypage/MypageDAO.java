@@ -125,7 +125,7 @@ public class MypageDAO {
 		try {
 			sb.append("SELECT * FROM ( ");
 			sb.append("   SELECT ROWNUM rnum, tb.* FROM ( "); 
-			sb.append("      SELECT 'freebbs' boardName, num, subject, reg_date, hitCount FROM freebbs WHERE userId = ?"); 
+			sb.append("      SELECT 'notice' boardName, num, subject, reg_date, hitCount FROM freebbs WHERE userId = ?"); 
 			sb.append("      UNION ALL "); 
 			sb.append("      SELECT 'opensource' boardName, num, subject, reg_date, hitCount FROM opensource WHERE userId = ?"); 
 			sb.append("      UNION ALL "); 
