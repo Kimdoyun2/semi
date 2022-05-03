@@ -61,11 +61,74 @@ public class qANDaServlet extends MyServlet {
 	
 	private void answerForm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 답변 폼
+		
+		qANDaDAO dao = new qANDaDAO();
+		
+		String cp = req.getContextPath();
+		
+		String page = req.getParameter("page");
+		
+		try {
+			int num = Integer.parseInt(req.getParameter("num"));
+			
+			qANDaDTO dto = dao.readqANDa(num);
+			if(dto == null) {
+				resp.sendRedirect(cp + "/qANDa/list.do?page="+page);
+				return;
+			}
+			
+			String s = "[" + dto.getSubject() + "] 에 대한 답변입니다.\n";
+			dto.setContent(s);
+			
+			req.setAttribute("mode", "reply");
+			req.setAttribute("dto", dto);
+			req.setAttribute("page", page);
+		
+			forward(req, resp, "/WEB-INF/views/qANDa/write.jsp");
+			return;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		resp.sendRedirect(cp + "/qANDa/list.do?page="+page);
+
 
 	}
 	
 	private void answerSubmit(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// 답변 완료
+		qANDaDAO dao = new qANDaDAO();
+		
+		HttpSession session = req.getSession();
+		SessionInfo info = (SessionInfo)session.getAttribute("member");
+		
+		String cp = req.getContextPath();
+		if(req.getMethod().equalsIgnoreCase("GET")) {
+			resp.sendRedirect(cp + "/qANDa/list.do");
+			return;
+		}
+		
+		String page = req.getParameter("page");
+		
+		try {
+			qANDaDTO dto = new qANDaDTO();
+			
+			dto.setSubject(req.getParameter("subject"));
+			dto.setContent(req.getParameter("content"));
+			
+			dto.setAnNum(Integer.parseInt(req.getParameter("anNum")));
+			dto.setOrderNo(Integer.parseInt(req.getParameter("orderNo")));
+			dto.setDepth(Integer.parseInt(req.getParameter("depth")));
+			dto.setParent(Integer.parseInt(req.getParameter("parent")));
+			
+			dto.setUserId(info.getUserId());
+			
+			dao.insertqANDa(dto, "reply");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		resp.sendRedirect(cp + "/qANDa/list.do?page=" + page);
 		
 	}
 	

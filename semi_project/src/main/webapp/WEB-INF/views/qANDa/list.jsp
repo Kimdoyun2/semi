@@ -81,7 +81,7 @@ function searchList() {
 						<td>${dto.listNum}</td>
 						<td class="left">
 							<c:forEach var="n" begin="1" end="${dto.depth }">&nbsp;&nbsp;</c:forEach>
-							<c:if test="${dto.depth!=0}">☞&nbsp;</c:if>
+							<c:if test="${dto.depth!=0}">L Re:&nbsp;</c:if>
 							<a href="${articleUrl}&num=${dto.num}">${dto.subject}</a>
 						</td>
 						<td>${dto.userName}</td>
