@@ -10,6 +10,7 @@
 <title>dokky</title>
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
 <style type="text/css">
+
 .body-title h3 { 
 	color:#243b73;
     border-bottom: 3px solid #243b73;
@@ -38,20 +39,23 @@
 }
 
 .table-list .num {
-	width: 60px; color: #787878;
+	width: 60px; background: #f1f3f7; color: #243b73;
 }
 .table-list .subject {
-	color: #787878;
+	background: #f1f3f7; color: #243b73;
 }
 .table-list .name {
-	width: 100px; color: #787878;
+	width: 100px; background: #f1f3f7; color: #243b73;
 }
 .table-list .date {
-	width: 100px; color: #787878;
+	width: 100px; background: #f1f3f7; color: #243b73;
 }
 .table-list .hit {
-	width: 70px; color: #787878;
+	width: 70px; background: #f1f3f7; color: #243b73;
 }
+
+.table-list .thead
+
 </style>
 <script type="text/javascript">
 function searchList() {
@@ -116,7 +120,7 @@ function searchList() {
 		<table class="table">
 			<tr>
 				<td width="100">
-					<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/qANDa/list.do';" title="새로고침"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+					<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/qANDa/list.do';" title="새로고침">새로고침</button>
 				</td>
 				<td align="center">
 					<form name="searchForm" action="${pageContext.request.contextPath}/qANDa/list.do" method="post">
