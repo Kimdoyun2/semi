@@ -75,6 +75,7 @@ function searchList() {
 	f.submit();
 }
 
+
 </script>
 
 
@@ -96,7 +97,11 @@ function searchList() {
 					${dataCount}개 | (${page}/${total_page} 페이지)
 				</td>
 				<td align="right">
-					
+					<select name="complete" class="form-select" onchange="completeList();">
+						<option value="1" ${complete==1 ? "selected='selected' ":""}>최신순</option>
+						<option value="2"  ${complete==2 ? "selected='selected' ":""}>모집완</option>
+						<option value="3" ${complete==3 ? "selected='selected' ":""}>모집중</option>
+					</select>		
 				<td>
 			</tr>
 		</table>
@@ -125,7 +130,7 @@ function searchList() {
 							<td>${dto.listNum}</td>
 							<td class="left">
 								<c:forEach var="n" begin="1" end="${dto.depth }">&nbsp;&nbsp;</c:forEach>
-								<c:if test="${dto.depth!=0}">└&nbsp;</c:if>
+								<c:if test="${dto.depth!=0}">L Re:&nbsp;</c:if>
 								<a href="${articleUrl}&num=${dto.num}">${dto.subject}</a>
 							</td>
 							<td>${dto.userName}</td>
@@ -145,7 +150,7 @@ function searchList() {
 		<table class="table">
 			<tr>
 				<td width="100">
-					<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/study/list.do';" title="새로고침"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+					<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/study/list.do';" title="새로고침">새로고침</button>
 				</td>
 				<td align="center">
 					<form name="searchForm" action="${pageContext.request.contextPath}/study/list.do" method="post">
