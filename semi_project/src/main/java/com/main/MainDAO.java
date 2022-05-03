@@ -29,7 +29,7 @@ public class MainDAO {
 			sb.append("      UNION ALL "); 
 			sb.append("      SELECT 'study' boardName, num, subject, reg_date, hitCount FROM study"); 
 			sb.append("      UNION ALL "); 
-			sb.append("      SELECT 'qAndA' boardName, num, subject, reg_date, hitCount FROM qAndA"); 
+			sb.append("      SELECT 'qANDa' boardName, num, subject, reg_date, hitCount FROM qAnda"); 
 			sb.append("     ORDER BY hitCount DESC ");
 			sb.append("   ) tb WHERE ROWNUM <= 5 ");
 			sb.append(" ) WHERE rnum >= 1 ");
@@ -88,7 +88,7 @@ public class MainDAO {
 			sb.append("      UNION ALL "); 
 			sb.append("      SELECT 'study' boardName, num, subject, reg_date, hitCount FROM study"); 
 			sb.append("      UNION ALL "); 
-			sb.append("      SELECT 'qAndA' boardName, num, subject, reg_date, hitCount FROM qAndA"); 
+			sb.append("      SELECT 'qANDa' boardName, num, subject, reg_date, hitCount FROM qAnda"); 
 			sb.append("     ORDER BY reg_date DESC ");
 			sb.append("   ) tb WHERE ROWNUM <= 5 ");
 			sb.append(" ) WHERE rnum >= 1 ");
