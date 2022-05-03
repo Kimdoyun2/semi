@@ -18,6 +18,8 @@
 				<span style="color:#243b73;">${sessionScope.member.userName}</span>님
 					&nbsp;&nbsp;
 				<a class="a2" href="${pageContext.request.contextPath}/member/logout.do">로그아웃</a>
+					&nbsp;&nbsp;
+				<a class="a2" href="${pageContext.request.contextPath}/member/pwd.do?mode=update">내 정보수정</a>
 			</c:if>
         </div>
     </div>

@@ -24,9 +24,7 @@ main .container {
 }
 
 .title-body .article-title {
-	font-weight: bold;
-	font-size: 27px;
-	color: #424951;
+	font-weight: bold; font-size: 27px; cursor: pointer; color: #243b73;
 }
 
 .form-body {
@@ -34,15 +32,20 @@ main .container {
 }
 
 .form-body .inputTF {
-  width: 100%;
-  height: 45px;
-  padding: 5px;
-  padding-left: 15px;
-  border:1px solid #666;
+	width: 100%;
+	height: 45px;
+	padding: 5px;
+	padding-left: 15px;
+	border:1px solid #dee4f2;
+	background: #f1f3f7;
+}
+
+.table input[type=text]:focus, .table input[type=password]:focus {
+	border:1px solid #243b73;
 }
 
 .form-table {
-	border: 1px solid #DAD9FF;
+	border: 1px solid #dee4f2;
 }
 .form-table tr:first-child td {
 	padding-top: 20px;
