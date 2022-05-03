@@ -51,7 +51,7 @@ public class MypageServlet extends HttpServlet{
 		String uri = req.getRequestURI();
 		if(uri.indexOf("mypage.do") != -1) {
 			mypage(req, resp);
-		}
+		} 
 	}
 	
 	protected void mypage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -104,18 +104,9 @@ public class MypageServlet extends HttpServlet{
 			if(keyword.length() == 0) {
 			list = dao.listNotice(info.getUserId(), start, end);
 
-			String query = "";
-			String listUrl, articleUrl;
-			String boardName = dto.getBoardName();
+			String listUrl;
+	
 			listUrl = cp+"/mypage/mypage.do";
-			articleUrl = cp + "/"+boardName+ "/article.do?page=" + current_page;
-			
-			if(keyword.length() != 0) {
-				query = "condition=" + condition + "&keyword="
-						+ URLEncoder.encode(keyword, "utf-8");
-				listUrl += "?" + query;
-				articleUrl += "&" + query;
-			}
 			
 			String paging = myUtil.paging(current_page, total_page, listUrl);
 
@@ -124,7 +115,6 @@ public class MypageServlet extends HttpServlet{
 			req.setAttribute("total_page", total_page);
 			req.setAttribute("dataCount", dataCount);
 			req.setAttribute("paging", paging);
-			req.setAttribute("articleUrl", articleUrl);
 			req.setAttribute("condition", condition);
 			req.setAttribute("keyword", keyword);
 			
@@ -132,8 +122,56 @@ public class MypageServlet extends HttpServlet{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-			
+		
 		forward(req, resp, "/WEB-INF/views/mypage/mypage.jsp");
-	
 	}
+	
+	
+	protected void article(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// 게시글로 이동
+		MypageDAO dao = new MypageDAO();
+		String cp = req.getContextPath();
+		
+		String page = req.getParameter("page");
+		String query = "page=" + page;
+		String BoardName = req.getParameter("BoardName");
+		
+		try {
+			int num = Integer.parseInt(req.getParameter("num"));
+			
+			String condition = req.getParameter("condition");
+			String keyword = req.getParameter("keyword");
+			if(condition == null) {
+				condition = "all";
+				keyword = "";
+			}
+			keyword = URLDecoder.decode(keyword, "utf-8");
+			if(keyword.length() != 0) {
+				query += "&condition=" + condition + 
+						 "&keyword=" + URLEncoder.encode(keyword, "utf-8");
+			}
+			
+			MypageDTO dto = (MypageDTO) dao.listNotice(BoardName, num, num);
+			
+			if(dto == null) {
+				resp.sendRedirect(cp + "/views//mypage/mypage.jsp");
+				return;
+			}
+			dto.setContent(dto.getContent().replaceAll("\n", "<br>"));
+		
+			
+			req.setAttribute("dto", dto);
+			req.setAttribute("query", query);
+			req.setAttribute("page", page);
+			
+			forward(req, resp, "/WEB-INF/views/mypage/mypage.jsp");
+			return;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		resp.sendRedirect(cp + "/views/mypage/mypage.jsp");
+	}
+
 }

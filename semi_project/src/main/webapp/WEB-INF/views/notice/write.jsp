@@ -10,11 +10,6 @@
 <title>dokky</title>
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
 <style type="text/css">
-
-
-
-
-
 .table-form td {
 	padding: 7px 0;
 }
@@ -84,18 +79,19 @@ function sendBoard() {
         f.content.focus();
         return;
     }
-
+	
     f.action = "${pageContext.request.contextPath}/notice/${mode}_ok.do";
     f.submit();
 }
 
 <c:if test="${mode=='update'}">
 	function deleteFile(fileNum) {
-		if(confirm('파일을 삭제하시겠습니까? ')){
+		if(! confirm('파일을 삭제하시겠습니까? ')){
+		 return;
+		}
 			let query = "num=${dto.num}&page=${page}&fileNum="+fileNum;
 			let url = "${pageContext.request.contextPath}/notice/deleteFile.do?"+query;
 			location.href = url;
-		}
 	}
 </c:if>
 
@@ -110,7 +106,7 @@ function sendBoard() {
 <main>
 	<div class="body-container" style="width: 700px;">
 		<div class="body-title">
-			<h3><i class="fas fa-clipboard-list"></i> 공지사항 </h3> 
+			<h3><i class="fas fa-clipboard-list"></i> 자유게시판 </h3> 
 		</div>
         
 		<form name="boardForm" method="post" enctype="multipart/form-data">
@@ -174,12 +170,10 @@ function sendBoard() {
 						<c:if test="${mode=='update'}">
 							<input type="hidden" name="num" value="${dto.num}">
 							<input type="hidden" name="page" value="${page}">
-							
 						</c:if>
 					</td>
 				</tr>
 			</table>
-	
 		</form>
 
         

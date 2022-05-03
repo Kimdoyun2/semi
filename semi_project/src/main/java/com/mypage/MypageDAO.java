@@ -125,15 +125,15 @@ public class MypageDAO {
 		try {
 			sb.append("SELECT * FROM ( ");
 			sb.append("   SELECT ROWNUM rnum, tb.* FROM ( "); 
-			sb.append("      SELECT 'freebbs' boardName, subject, reg_date, hitCount FROM freebbs WHERE userId = ?"); 
+			sb.append("      SELECT 'notice' boardName, num, subject, reg_date, hitCount FROM freebbs WHERE userId = ?"); 
 			sb.append("      UNION ALL "); 
-			sb.append("      SELECT 'opensource' boardName, subject, reg_date, hitCount FROM opensource WHERE userId = ?"); 
+			sb.append("      SELECT 'opensource' boardName, num, subject, reg_date, hitCount FROM opensource WHERE userId = ?"); 
 			sb.append("      UNION ALL "); 
-			sb.append("      SELECT 'lecture' boardName, subject, reg_date, hitCount FROM lecture WHERE userId = ?"); 
+			sb.append("      SELECT 'lecture' boardName, num, subject, reg_date, hitCount FROM lecture WHERE userId = ?"); 
 			sb.append("      UNION ALL "); 
-			sb.append("      SELECT 'study' boardName, subject, reg_date, hitCount FROM study WHERE userId = ?"); 
+			sb.append("      SELECT 'study' boardName, num, subject, reg_date, hitCount FROM study WHERE userId = ?"); 
 			sb.append("      UNION ALL "); 
-			sb.append("      SELECT 'qAndA' boardName, subject, reg_date, hitCount FROM qAndA WHERE userId = ?"); 
+			sb.append("      SELECT 'qAndA' boardName, num, subject, reg_date, hitCount FROM qAndA WHERE userId = ?"); 
 			sb.append("     ORDER BY reg_date DESC ");
 			sb.append("   ) tb WHERE ROWNUM <= ? ");
 			sb.append(" ) WHERE rnum >= ? "); 
@@ -153,6 +153,7 @@ public class MypageDAO {
 			while(rs.next()) {
 				MypageDTO dto = new MypageDTO();
 				
+				dto.setNum(rs.getInt("num"));
 				dto.setBoardName(rs.getString("boardName"));
 				dto.setSubject(rs.getString("subject"));
 				dto.setReg_date(rs.getString("reg_date"));

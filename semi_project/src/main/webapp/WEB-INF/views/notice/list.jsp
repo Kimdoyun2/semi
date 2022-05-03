@@ -7,7 +7,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>dokky</title>
+<title>spring</title>
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
 <style type="text/css">
 
@@ -61,6 +61,9 @@ a:active, a:hover { color:#243b73; text-decoration: underline; }
 .table-list .hit {
 	width: 70px; background: #f1f3f7; color: #243b73;
 }
+.table-list .like {
+	width: 70px; background: #f1f3f7; color: #243b73;
+}
 
 
 a:active, a:hover { color:#243b73; text-decoration: underline; }
@@ -76,6 +79,16 @@ function searchList() {
 	const f = document.searchForm;
 	f.submit();
 }
+
+function orderChange() {
+	let orderSelected = document.getElementById('order-select').value;
+	let keyword = document.getElementById('keyword').value;
+	if(keyword == undefined) {
+		location.href="${pageContext.request.contextPath}/notice/list.do?order="+orderSelected;
+	} else {
+		location.href="${pageContext.request.contextPath}/notice/list.do?keyword="+keyword+"&condition=${condition}&order="+orderSelected;
+	}
+}
 </script>
 </head>
 <body>
@@ -87,13 +100,19 @@ function searchList() {
 <main>
 	<div class="body-container" style="width: 700px;">
 		<div class="body-title">
-			<h3><i class="fas fa-clipboard"></i> 공지사항 </h3>
+			<h3><i class="fas fa-clipboard"></i> 자유게시판 </h3>
 		</div>
         
 		<table class="table">
 			<tr>
 				<td width="50%">${dataCount}개(${page}/${total_page} 페이지)</td>
-				<td align="right">&nbsp;</td>
+				<td align="right">
+					<select id="order-select" name="order-select" class="order-select" onchange="orderChange()">
+							<option value="latest" ${order=="latest" ?"selected='selected'":"" }>최신순</option>
+							<option value="hitCount" ${order=="hitCount" ?"selected='selected'":"" }>조회수순</option>
+							<option value="likeCount" ${order=="likeCount" ?"selected='selected'":"" }>좋아요순</option>
+					</select>
+				</td>
 			</tr>
 		</table>
 		
@@ -105,6 +124,7 @@ function searchList() {
 					<th class="name">작성자</th>
 					<th class="date">작성일</th>
 					<th class="hit">조회수</th>
+					<th class="like">좋아요</th>
 				</tr>
 			</thead>
 			
@@ -118,6 +138,7 @@ function searchList() {
 					<td>${dto.userName}</td>
 					<td>${dto.reg_date}</td>
 					<td>${dto.hitCount}</td>
+					<td>${dto.likeCount}</td>
 				</tr>
 				</c:forEach>
 				
@@ -131,6 +152,7 @@ function searchList() {
 					<td>${dto.userName}</td>
 					<td>${dto.reg_date}</td>
 					<td>${dto.hitCount}</td>
+					<td>${dto.likeCount}</td>
 				</tr>
 				</c:forEach>
 			
@@ -156,19 +178,15 @@ function searchList() {
 							<option value="subject" ${condition=="subject" ?"selected='selected'":"" }>제목</option>
 							<option value="content" ${condition=="content" ?"selected='selected'":"" }>내용</option>
 						</select>
-						<input type="text" name="keyword" value="${keyword }" class="form-control">
+						<input type="text" name="keyword" id="keyword" value="${keyword }" class="form-control">
 						<button type="button" class="btn" onclick="searchList();">검색</button>
 					</form>
 				</td>
 				<td align="right" width="100">
-					<c:if test="${sessionScope.member.userId =='admin' }">
 						<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/notice/write.do';">글올리기</button>
-					</c:if>
-					
 				</td>
 			</tr>
 		</table>	
-
 	</div>
 </main>
 

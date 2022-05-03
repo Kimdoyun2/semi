@@ -114,7 +114,7 @@
 				<c:forEach var="vo" items="${list}">
 					<tr>
 						<td>
-						<a>${vo.subject}</a>
+						<a href="${pageContext.request.contextPath}/${vo.boardName}/article.do?num=${vo.num}&page=1">${vo.subject}</a>
 						</td>
 						<td>${vo.reg_date}</td>
 						<td>${vo.hitCount}</td>
@@ -135,6 +135,7 @@
 <footer>
     <jsp:include page="/WEB-INF/views/layout/footer.jsp"></jsp:include>
 </footer>
+
 <jsp:include page="/WEB-INF/views/layout/staticFooter.jsp"/>
 
 </body>
