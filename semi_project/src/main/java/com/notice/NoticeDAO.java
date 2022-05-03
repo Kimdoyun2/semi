@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.util.DBConn;
 
@@ -127,6 +129,7 @@ private Connection conn = DBConn.getConnection();
 		return result;
 	}
 	
+	//검색에서 전체의 개수
 	public int dataCount(String condition, String keyword) {
 		int result = 0;
 		
@@ -179,21 +182,27 @@ private Connection conn = DBConn.getConnection();
 		return result;
 	}
 	
-	public List<NoticeDTO> listNotice(int start, int end){
+	public List<NoticeDTO> listNotice(int start, int end, String order){
 		List<NoticeDTO> list = new ArrayList<NoticeDTO>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		StringBuilder sb = new StringBuilder();
 		
 		try {
-			sb.append("SELECT * FROM ( ");
-			sb.append(" SELECT ROWNUM rnum, tb.* FROM ( ");
-			sb.append("  SELECT num, notice, userName, subject, hitCount, reg_date, likeCount ");
-			sb.append("   FROM freebbs f ");
-			sb.append("    JOIN member1 m ON f.userId = m.userId ");
-			sb.append("    ORDER BY num DESC ");
-			sb.append(" ) tb WHERE ROWNUM <= ? ");
-			sb.append(" ) WHERE rnum >= ?");
+			sb.append(" SELECT * FROM ( ");
+			sb.append("     SELECT ROWNUM rnum, tb.* FROM ( ");
+			sb.append("         SELECT b.num, notice, userName, subject, hitCount, likeCount, ");
+			sb.append("                reg_date");
+			sb.append("         FROM freebbs b ");
+			sb.append("         JOIN member1 m ON b.userId = m.userId ");
+			
+			if(order.equals("latest")) {
+				sb.append("    ORDER BY num DESC ");
+			} else {
+				sb.append("    ORDER BY "+order+" DESC ");
+			}
+			sb.append("     ) tb WHERE ROWNUM <= ? ");
+			sb.append(" ) WHERE rnum >= ? ");
 			
 			pstmt = conn.prepareStatement(sb.toString());
 			pstmt.setInt(1, end);
@@ -209,6 +218,7 @@ private Connection conn = DBConn.getConnection();
 				dto.setHitCount(rs.getInt("hitCount"));
 				dto.setReg_date(rs.getString("reg_date"));
 				dto.setLikeCount(rs.getInt("likeCount"));
+				
 				
 				list.add(dto);
 				
@@ -234,18 +244,20 @@ private Connection conn = DBConn.getConnection();
 		return list;
 	}
 	
-	public List<NoticeDTO> listNotice(int start, int end, String condition, String keyword){
+	//검색에서 리스트 
+	public List<NoticeDTO> listNotice(int start, int end, String condition, String keyword, String order){
 		List<NoticeDTO> list = new ArrayList<NoticeDTO>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		StringBuilder sb = new StringBuilder();
 		
 		try {
-			sb.append("SELECT * FROM ( ");
-			sb.append(" SELECT ROWNUM rnum, tb.* FROM ( ");
-			sb.append("  SELECT num, notice, userName, subject, hitCount, reg_date, likeCount ");
-			sb.append("   FROM freebbs f ");
-			sb.append("    JOIN member1 m ON f.userId = m.userId ");
+			sb.append(" SELECT * FROM ( ");
+			sb.append("     SELECT ROWNUM rnum, tb.* FROM ( ");
+			sb.append("         SELECT b.num, userName, subject, hitCount, ");
+			sb.append("               TO_CHAR(reg_date, 'YYYY-MM-DD') reg_date ");
+			sb.append("         FROM freebbs b ");
+			sb.append("         JOIN member1 m ON b.userId = m.userId ");
 			if(condition.equals("all")) {
 				sb.append(" WHERE INSTR(subject, ?) >= 1 OR INSTR(content, ?)>= 1");
 			} else if (condition.equals("reg_date")) {
@@ -254,8 +266,11 @@ private Connection conn = DBConn.getConnection();
 			} else {
 				sb.append(" WHERE INSTR(" + condition + ", ?) >= 1");
 			}
-			
-			sb.append("    ORDER BY num DESC ");
+			if(order.equals("latest")) {
+				sb.append("     ORDER BY num DESC ");
+			} else {
+				sb.append("    ORDER BY "+order+" DESC ");
+			}
 			sb.append(" ) tb WHERE ROWNUM <= ? ");
 			sb.append(" ) WHERE rnum >= ?");
 			
@@ -282,7 +297,7 @@ private Connection conn = DBConn.getConnection();
 				dto.setHitCount(rs.getInt("hitCount"));
 				dto.setReg_date(rs.getString("reg_date"));
 				dto.setLikeCount(rs.getInt("likeCount"));
-				
+		
 				list.add(dto);
 				
 			}
@@ -367,11 +382,10 @@ private Connection conn = DBConn.getConnection();
 		String sql;
 		
 		try {
-			sql = "SELECT num, f.userId, userName, notice, subject, content, "
-				+ " reg_date, hitCount, likeCount "
-				+ " FROM freebbs f "
-				+ " JOIN member1 m ON f.userId = m.userId "
-				+ " WHERE num = ? ";
+			sql = "SELECT b.num, b.userId, userName,notice, subject, content, reg_date, hitCount, likeCount "
+					+ " FROM freebbs b "
+					+ " JOIN member1 m ON b.userId=m.userId "
+					+ " WHERE b.num = ? ";
 			
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, num);
@@ -390,6 +404,8 @@ private Connection conn = DBConn.getConnection();
 				dto.setReg_date(rs.getString("reg_date"));
 				dto.setHitCount(rs.getInt("hitCount"));
 				dto.setLikeCount(rs.getInt("likeCount"));
+				
+				
 			
 			}
 		} catch (Exception e) {
@@ -414,167 +430,167 @@ private Connection conn = DBConn.getConnection();
 	}
 	
 	// 이전글
-		public NoticeDTO preReadNotice(int num, String condition, String keyword) {
-			NoticeDTO dto = null;
-			PreparedStatement pstmt = null;
-			ResultSet rs = null;
-			StringBuilder sb = new StringBuilder();
+	public NoticeDTO preReadNotice(int num, String condition, String keyword) {
+		NoticeDTO dto = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		StringBuilder sb = new StringBuilder();
 
-			try {
-				if (keyword != null && keyword.length() != 0) {
-					sb.append(" SELECT * FROM ( ");
-					sb.append("    SELECT num, subject ");
-					sb.append("    FROM freebbs f ");
-					sb.append("    JOIN member1 m ON f.userId = m.userId ");
-					sb.append("    WHERE ( num > ? ) ");
-					if (condition.equals("all")) {
-						sb.append("   AND ( INSTR(subject, ?) >= 1 OR INSTR(content, ?) >= 1 ) ");
-					} else if (condition.equals("reg_date")) {
-						keyword = keyword.replaceAll("(\\-|\\/|\\.)", "");
-						sb.append("   AND ( TO_CHAR(reg_date, 'YYYYMMDD') = ? ) ");
-					} else {
-						sb.append("   AND ( INSTR(" + condition + ", ?) >= 1 ) ");
-					}
-					sb.append("     ORDER BY num ASC ");
-					sb.append(" ) WHERE ROWNUM = 1 ");
-
-					pstmt = conn.prepareStatement(sb.toString());
-					
-					pstmt.setInt(1, num);
-					pstmt.setString(2, keyword);
-					if (condition.equals("all")) {
-						pstmt.setString(3, keyword);
-					}
+		try {
+			if (keyword != null && keyword.length() != 0) {
+				sb.append(" SELECT * FROM ( ");
+				sb.append("    SELECT num, subject ");
+				sb.append("    FROM freebbs f ");
+				sb.append("    JOIN member1 m ON f.userId = m.userId ");
+				sb.append("    WHERE ( num > ? ) ");
+				if (condition.equals("all")) {
+					sb.append("   AND ( INSTR(subject, ?) >= 1 OR INSTR(content, ?) >= 1 ) ");
+				} else if (condition.equals("reg_date")) {
+					keyword = keyword.replaceAll("(\\-|\\/|\\.)", "");
+					sb.append("   AND ( TO_CHAR(reg_date, 'YYYYMMDD') = ? ) ");
 				} else {
-					sb.append(" SELECT * FROM ( ");
-					sb.append("     SELECT num, subject FROM freebbs ");
-					sb.append("     WHERE num > ? ");
-					sb.append("     ORDER BY num ASC ");
-					sb.append(" ) WHERE ROWNUM = 1 ");
-
-					pstmt = conn.prepareStatement(sb.toString());
-					
-					pstmt.setInt(1, num);
+					sb.append("   AND ( INSTR(" + condition + ", ?) >= 1 ) ");
 				}
+				sb.append("     ORDER BY num ASC ");
+				sb.append(" ) WHERE ROWNUM = 1 ");
 
-				rs = pstmt.executeQuery();
+				pstmt = conn.prepareStatement(sb.toString());
 
-				if (rs.next()) {
-					dto = new NoticeDTO();
-					dto.setNum(rs.getInt("num"));
-					dto.setSubject(rs.getString("subject"));
+				pstmt.setInt(1, num);
+				pstmt.setString(2, keyword);
+				if (condition.equals("all")) {
+					pstmt.setString(3, keyword);
 				}
+			} else {
+				sb.append(" SELECT * FROM ( ");
+				sb.append("     SELECT num, subject FROM freebbs ");
+				sb.append("     WHERE num > ? ");
+				sb.append("     ORDER BY num ASC ");
+				sb.append(" ) WHERE ROWNUM = 1 ");
 
-			} catch (SQLException e) {
-				e.printStackTrace();
-			} finally {
-				if (rs != null) {
-					try {
-						rs.close();
-					} catch (SQLException e) {
-					}
-				}
+				pstmt = conn.prepareStatement(sb.toString());
 
-				if (pstmt != null) {
-					try {
-						pstmt.close();
-					} catch (SQLException e) {
-					}
+				pstmt.setInt(1, num);
+			}
+
+			rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				dto = new NoticeDTO();
+				dto.setNum(rs.getInt("num"));
+				dto.setSubject(rs.getString("subject"));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
 				}
 			}
 
-			return dto;
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+				}
+			}
 		}
 
-		// 다음글
-		public NoticeDTO nextReadNotice(int num, String condition, String keyword) {
-			NoticeDTO dto = null;
-			PreparedStatement pstmt = null;
-			ResultSet rs = null;
-			StringBuilder sb = new StringBuilder();
+		return dto;
+	}
 
-			try {
-				if (keyword != null && keyword.length() != 0) {
-					sb.append(" SELECT * FROM ( ");
-					sb.append("    SELECT num, subject ");
-					sb.append("    FROM freebbs f ");
-					sb.append("    JOIN member1 m ON f.userId = m.userId ");
-					sb.append("    WHERE ( num < ? ) ");
-					if (condition.equals("all")) {
-						sb.append("   AND ( INSTR(subject, ?) >= 1 OR INSTR(content, ?) >= 1 ) ");
-					} else if (condition.equals("reg_date")) {
-						keyword = keyword.replaceAll("(\\-|\\/|\\.)", "");
-						sb.append("   AND ( TO_CHAR(reg_date, 'YYYYMMDD') = ? ) ");
-					} else {
-						sb.append("   AND ( INSTR(" + condition + ", ?) >= 1 ) ");
-					}
-					sb.append("     ORDER BY num DESC ");
-					sb.append(" ) WHERE ROWNUM = 1 ");
+	// 다음글
+	public NoticeDTO nextReadNotice(int num, String condition, String keyword) {
+		NoticeDTO dto = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		StringBuilder sb = new StringBuilder();
 
-					pstmt = conn.prepareStatement(sb.toString());
-					
-					pstmt.setInt(1, num);
-					pstmt.setString(2, keyword);
-					if (condition.equals("all")) {
-						pstmt.setString(3, keyword);
-					}
+		try {
+			if (keyword != null && keyword.length() != 0) {
+				sb.append(" SELECT * FROM ( ");
+				sb.append("    SELECT num, subject ");
+				sb.append("    FROM freebbs f ");
+				sb.append("    JOIN member1 m ON f.userId = m.userId ");
+				sb.append("    WHERE ( num < ? ) ");
+				if (condition.equals("all")) {
+					sb.append("   AND ( INSTR(subject, ?) >= 1 OR INSTR(content, ?) >= 1 ) ");
+				} else if (condition.equals("reg_date")) {
+					keyword = keyword.replaceAll("(\\-|\\/|\\.)", "");
+					sb.append("   AND ( TO_CHAR(reg_date, 'YYYYMMDD') = ? ) ");
 				} else {
-					sb.append(" SELECT * FROM ( ");
-					sb.append("     SELECT num, subject FROM freebbs ");
-					sb.append("     WHERE num < ? ");
-					sb.append("     ORDER BY num DESC ");
-					sb.append(" ) WHERE ROWNUM = 1 ");
-
-					pstmt = conn.prepareStatement(sb.toString());
-					
-					pstmt.setInt(1, num);
+					sb.append("   AND ( INSTR(" + condition + ", ?) >= 1 ) ");
 				}
+				sb.append("     ORDER BY num DESC ");
+				sb.append(" ) WHERE ROWNUM = 1 ");
 
-				rs = pstmt.executeQuery();
+				pstmt = conn.prepareStatement(sb.toString());
 
-				if (rs.next()) {
-					dto = new NoticeDTO();
-					dto.setNum(rs.getInt("num"));
-					dto.setSubject(rs.getString("subject"));
+				pstmt.setInt(1, num);
+				pstmt.setString(2, keyword);
+				if (condition.equals("all")) {
+					pstmt.setString(3, keyword);
 				}
+			} else {
+				sb.append(" SELECT * FROM ( ");
+				sb.append("     SELECT num, subject FROM freebbs ");
+				sb.append("     WHERE num < ? ");
+				sb.append("     ORDER BY num DESC ");
+				sb.append(" ) WHERE ROWNUM = 1 ");
 
-			} catch (SQLException e) {
-				e.printStackTrace();
-			} finally {
-				if (rs != null) {
-					try {
-						rs.close();
-					} catch (SQLException e) {
-					}
-				}
+				pstmt = conn.prepareStatement(sb.toString());
 
-				if (pstmt != null) {
-					try {
-						pstmt.close();
-					} catch (SQLException e) {
-					}
+				pstmt.setInt(1, num);
+			}
+
+			rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				dto = new NoticeDTO();
+				dto.setNum(rs.getInt("num"));
+				dto.setSubject(rs.getString("subject"));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
 				}
 			}
 
-			return dto;
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+				}
+			}
 		}
+
+		return dto;
+	}
 
 	public void updateHitCount(int num) throws Exception {
 		PreparedStatement pstmt = null;
 		String sql;
-		
+
 		try {
-			sql ="UPDATE freebbs SET hitCount=hitCount+1 WHERE num = ? ";
+			sql = "UPDATE freebbs SET hitCount=hitCount+1 WHERE num = ? ";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, num);
-			
+
 			pstmt.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw e;
-		}finally {
-			if(pstmt!=null) {
+		} finally {
+			if (pstmt != null) {
 				try {
 					pstmt.close();
 				} catch (Exception e2) {
@@ -582,51 +598,49 @@ private Connection conn = DBConn.getConnection();
 			}
 		}
 	}
-	
-	
-	public List<NoticeDTO> listnoticeFile(int num){
+
+	public List<NoticeDTO> listNoticeFile(int num) {
 		// 해당 게시물의 모든 첨부파일 리스트 가져오기
 		List<NoticeDTO> list = new ArrayList<NoticeDTO>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		String sql;
-		
+
 		try {
-			sql = "SELECT fileNum, saveFilename, originalFilename FROM freebbsFile "
-					+ " WHERE num = ? ";
+			sql = "SELECT fileNum, saveFilename, originalFilename FROM freebbsFile " + " WHERE num = ? ";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, num);
-			
+
 			rs = pstmt.executeQuery();
-			while(rs.next()) { 
+			while (rs.next()) {
 				NoticeDTO dto = new NoticeDTO();
 				dto.setFileNum(rs.getInt("filenum"));
 				dto.setSaveFilename(rs.getString("saveFilename"));
 				dto.setOriginalFilename(rs.getString("originalFilename"));
 				list.add(dto);
 			}
-				
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if(rs!=null) {
+			if (rs != null) {
 				try {
 					rs.close();
 				} catch (Exception e2) {
 				}
 			}
-			
-			if(pstmt!=null) {
+
+			if (pstmt != null) {
 				try {
 					pstmt.close();
-				} catch (Exception e2) {	
+				} catch (Exception e2) {
 				}
 			}
 		}
-		
+
 		return list;
 	}
-	
+
 	public NoticeDTO readNoticeFile(int fileNum) {
 		// 파일번호에 해당하는 noticeFile 테이블의 내용
 		NoticeDTO dto = null;
@@ -675,13 +689,14 @@ private Connection conn = DBConn.getConnection();
 		String sql;
 		
 		try {
-			sql = "UPDATE freebbs SET notice=?, subject=?, content=?, WHERE num=?";
+			sql = "UPDATE freebbs SET notice=?, subject=?, content=? WHERE num=? AND userId= ?";
 			pstmt = conn.prepareStatement(sql);
 			
 			pstmt.setInt(1, dto.getNotice());
 			pstmt.setString(2, dto.getSubject());
 			pstmt.setString(3, dto.getContent());
 			pstmt.setInt(4, dto.getNum());
+			pstmt.setString(5, dto.getUserId());
 			
 			pstmt.executeUpdate();
 			
@@ -748,29 +763,580 @@ private Connection conn = DBConn.getConnection();
 	}
 		
 		
-		public void deleteNotice(int num) throws SQLException {
+	public void deleteNotice(int num, String userId) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+
+		try {
+			if (userId.equals("admin")) {
+				sql = "DELETE FROM freebbs WHERE num=?";
+				pstmt = conn.prepareStatement(sql);
+
+				pstmt.setInt(1, num);
+
+				pstmt.executeUpdate();
+			} else {
+				sql = "DELETE FROM freebbs WHERE num=? AND userId=?";
+
+				pstmt = conn.prepareStatement(sql);
+
+				pstmt.setInt(1, num);
+				pstmt.setString(2, userId);
+
+				pstmt.executeUpdate();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (Exception e) {
+				}
+			}
+		}
+	}
+	
+	// 로그인 유저의 게시글 공감 유무
+		public boolean isUserBoardLike(int num, String userId) {
+			boolean result = false;
 			PreparedStatement pstmt = null;
+			ResultSet rs = null;
 			String sql;
 			
 			try {
-				sql = "DELETE FROM freebbs WHERE num =?";
+				sql = "SELECT num, userId FROM freebbsLike WHERE num = ? AND userId = ?";
 				pstmt = conn.prepareStatement(sql);
+				
 				pstmt.setInt(1, num);
+				pstmt.setString(2, userId);
+				
+				rs = pstmt.executeQuery();
+				
+				if(rs.next()) {
+					result = true;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if(rs != null) {
+					try {
+						rs.close();
+					} catch (Exception e2) {
+					}
+				}
+				
+				if(pstmt != null) {
+					try {
+						pstmt.close();
+					} catch (Exception e2) {
+					}
+				}
+				
+			}
+			
+			return result;
+		}
+
+	// 게시물의 공감 추가
+	public void insertBoardLike(int num, String userId) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+
+		try {
+			sql = "INSERT INTO freebbsLike(num, userId) VALUES (?, ?)";
+			pstmt = conn.prepareStatement(sql);
+
+			pstmt.setInt(1, num);
+			pstmt.setString(2, userId);
+
+			pstmt.executeUpdate();
+			
+			pstmt.close();
+			pstmt = null;
+			
+			sql = "UPDATE freebbs SET likeCount=likeCount+1 WHERE num = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+
+	}
+
+	// 게시글 공감 삭제
+	public void deleteBoardLike(int num, String userId) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+
+		try {
+			sql = "DELETE FROM freebbsLike WHERE num = ? AND userId = ?";
+			pstmt = conn.prepareStatement(sql);
+
+			pstmt.setInt(1, num);
+			pstmt.setString(2, userId);
+
+			pstmt.executeUpdate();
+			pstmt.close();
+			pstmt = null;
+			
+			sql = "UPDATE freebbs SET likeCount=likeCount-1 WHERE num = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (Exception e2) {
+				}
+			}
+		}
+
+	}
+
+	// 게시물의 공감 개수
+	public int countBoardLike(int num) {
+		int result = 0;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql;
+
+		try {
+			sql = "SELECT NVL(COUNT(*), 0) FROM freebbsLike WHERE num=?";
+			pstmt = conn.prepareStatement(sql);
+
+			pstmt.setInt(1, num);
+
+			rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				result = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+				}
+			}
+
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+
+		return result;
+	}
+
+	// 게시물의 댓글 및 답글 추가
+	public void insertReply(ReplyDTO dto) throws SQLException {
+		PreparedStatement pstmt = null;
+		String sql;
+
+		try {
+			sql = "INSERT INTO freebbsReply(replyNum, num, userId, content, answer, reg_date) "
+					+ " VALUES (freebbsReply_seq.NEXTVAL, ?, ?, ?, ?, SYSDATE)";
+			pstmt = conn.prepareStatement(sql);
+
+			pstmt.setInt(1, dto.getNum());
+			pstmt.setString(2, dto.getUserId());
+			pstmt.setString(3, dto.getContent());
+			pstmt.setInt(4, dto.getAnswer());
+
+			pstmt.executeUpdate();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if (pstmt != null)
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+				}
+		}
+
+	}
+
+	// 게시물의 댓글 개수
+	public int dataCountReply(int num) {
+		int result = 0;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql;
+
+		try {
+			sql = "SELECT NVL(COUNT(*), 0) FROM freebbsReply WHERE num=? AND answer=0";
+			pstmt = conn.prepareStatement(sql);
+
+			pstmt.setInt(1, num);
+
+			rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				result = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+				}
+			}
+
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+
+		return result;
+	}
+
+	// 게시물 댓글 리스트
+	public List<ReplyDTO> listReply(int num, int start, int end) {
+		List<ReplyDTO> list = new ArrayList<>();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		StringBuilder sb = new StringBuilder();
+
+		try {
+			sb.append(" SELECT * FROM ( ");
+			sb.append("     SELECT ROWNUM rnum, tb.* FROM ( ");
+			sb.append("         SELECT r.replyNum, r.userId, userName, num, content, r.reg_date, ");
+			sb.append("                NVL(answerCount, 0) answerCount, ");
+			sb.append("                NVL(likeCount, 0) likeCount, ");
+			sb.append("                NVL(disLikeCount, 0) disLikeCount ");
+			sb.append("         FROM freebbsReply r ");
+			sb.append("         JOIN member1 m ON r.userId = m.userId ");
+			sb.append("	        LEFT OUTER  JOIN (");
+			sb.append("	            SELECT answer, COUNT(*) answerCount ");
+			sb.append("             FROM freebbsReply  WHERE answer != 0 ");
+			sb.append("             GROUP BY answer ");
+			sb.append("         ) a ON r.replyNum = a.answer ");
+			sb.append("         LEFT OUTER  JOIN ( ");
+			sb.append("	            SELECT replyNum,  ");
+			sb.append("                 COUNT(DECODE(replyLike, 1, 1)) likeCount, ");
+			sb.append("                 COUNT(DECODE(replyLike, 0, 1)) disLikeCount ");
+			sb.append("             FROM freebbsReplyLike GROUP BY replyNum  ");
+			sb.append("         ) b ON r.replyNum = b.replyNum  ");
+			sb.append("	        WHERE num = ? AND r.answer=0 ");
+			sb.append("         ORDER BY r.replyNum DESC ");
+			sb.append("     ) tb WHERE ROWNUM <= ? ");
+			sb.append(" ) WHERE rnum >= ? ");
+
+			pstmt = conn.prepareStatement(sb.toString());
+
+			pstmt.setInt(1, num);
+			pstmt.setInt(2, end);
+			pstmt.setInt(3, start);
+
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				ReplyDTO dto = new ReplyDTO();
+
+				dto.setReplyNum(rs.getInt("replyNum"));
+				dto.setNum(rs.getInt("num"));
+				dto.setUserId(rs.getString("userId"));
+				dto.setUserName(rs.getString("userName"));
+				dto.setContent(rs.getString("content"));
+				dto.setReg_date(rs.getString("reg_date"));
+				dto.setAnswerCount(rs.getInt("answerCount"));
+				dto.setLikeCount(rs.getInt("likeCount"));
+				dto.setDisLikeCount(rs.getInt("disLikeCount"));
+
+				list.add(dto);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+				}
+			}
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+
+		return list;
+	}
+//댓글 읽기 
+	public ReplyDTO readReply(int replyNum) {
+		ReplyDTO dto = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql;
+
+		try {
+			sql = "SELECT replyNum, num, r.userId, userName, content , r.reg_date "
+					+ "  FROM freebbsReply r JOIN member1 m ON r.userId=m.userId  " + "  WHERE replyNum = ? ";
+			pstmt = conn.prepareStatement(sql);
+
+			pstmt.setInt(1, replyNum);
+
+			rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				dto = new ReplyDTO();
+
+				dto.setReplyNum(rs.getInt("replyNum"));
+				dto.setNum(rs.getInt("num"));
+				dto.setUserId(rs.getString("userId"));
+				dto.setUserName(rs.getString("userName"));
+				dto.setContent(rs.getString("content"));
+				dto.setReg_date(rs.getString("reg_date"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+				}
+			}
+
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+
+		return dto;
+	}
+	
+	// 게시물의 댓글 삭제
+		public void deleteReply(int replyNum, String userId) throws SQLException {
+			PreparedStatement pstmt = null;
+			String sql;
+			
+			if(! userId.equals("admin")) {
+				ReplyDTO dto = readReply(replyNum);
+				if(dto == null || (! userId.equals(dto.getUserId()))) {
+					return;
+				}
+			}
+			
+			try {
+				sql = "DELETE FROM freebbsReply "
+						+ "  WHERE replyNum IN  "
+						+ "  (SELECT replyNum FROM freebbsReply START WITH replyNum = ?"
+						+ "     CONNECT BY PRIOR replyNum = answer)";
+				pstmt = conn.prepareStatement(sql);
+				
+				pstmt.setInt(1, replyNum);
+				
 				pstmt.executeUpdate();
 			} catch (SQLException e) {
 				e.printStackTrace();
 				throw e;
 			} finally {
-				if(pstmt!=null) {
+				if(pstmt != null) {
 					try {
 						pstmt.close();
-					} catch (Exception e) {
+					} catch (SQLException e) {
+					}
+				}
+			}		
+			
+		}
+		// 댓글의 답글 리스트
+		public List<ReplyDTO> listReplyAnswer(int answer) {
+			List<ReplyDTO> list = new ArrayList<>();
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			StringBuilder sb=new StringBuilder();
+			
+			try {
+				sb.append(" SELECT replyNum, num, r.userId, userName, content, reg_date, answer ");
+				sb.append(" FROM freebbsReply r ");
+				sb.append(" JOIN member1 m ON r.userId=m.userId ");
+				sb.append(" WHERE answer=? ");
+				sb.append(" ORDER BY replyNum DESC ");
+				pstmt = conn.prepareStatement(sb.toString());
+				
+				pstmt.setInt(1, answer);
+
+				rs = pstmt.executeQuery();
+				
+				while(rs.next()) {
+					ReplyDTO dto=new ReplyDTO();
+					
+					dto.setReplyNum(rs.getInt("replyNum"));
+					dto.setNum(rs.getInt("num"));
+					dto.setUserId(rs.getString("userId"));
+					dto.setUserName(rs.getString("userName"));
+					dto.setContent(rs.getString("content"));
+					dto.setReg_date(rs.getString("reg_date"));
+					dto.setAnswer(rs.getInt("answer"));
+					
+					list.add(dto);
+				}
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				if(rs != null) {
+					try {
+						rs.close();
+					} catch (SQLException e) {
+					}
+				}
+					
+				if(pstmt != null) {
+					try {
+						pstmt.close();
+					} catch (SQLException e) {
 					}
 				}
 			}
+			return list;
 		}
-	
-	
-	}
+		
+		// 댓글의 답글 개수
+		public int dataCountReplyAnswer(int answer) {
+			int result = 0;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			String sql;
+			
+			try {
+				sql = "SELECT NVL(COUNT(*), 0) FROM freebbsReply WHERE answer=?";
+				pstmt = conn.prepareStatement(sql);
+				
+				pstmt.setInt(1, answer);
+				
+				rs = pstmt.executeQuery();
+				
+				if(rs.next()) {
+					result=rs.getInt(1);
+				}
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				if(rs != null) {
+					try {
+						rs.close();
+					} catch (SQLException e) {
+					}
+				}
+				if(pstmt != null) {
+					try {
+						pstmt.close();
+					} catch (SQLException e) {
+					}
+				}
+			}
+			
+			return result;
+		}
+		
+		// 댓글의 좋아요 / 싫어요 추가
+		public void insertReplyLike(ReplyDTO dto) throws SQLException {
+			PreparedStatement pstmt = null;
+			String sql;
+			
+			try {
+				sql = "INSERT INTO freebbsReplyLike(replyNum, userId, replyLike) VALUES (?, ?, ?)";
+				pstmt = conn.prepareStatement(sql);
+				
+				pstmt.setInt(1, dto.getReplyNum());
+				pstmt.setString(2, dto.getUserId());
+				pstmt.setInt(3, dto.getReplyLike());
+				
+				pstmt.executeUpdate();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+				throw e;
+			} finally {
+				if(pstmt != null) {
+					try {
+						pstmt.close();
+					} catch (SQLException e) {
+					}
+				}
+			}		
 
-
+		}
+		
+		// 댓글의 좋아요 / 싫어요 개수
+		public Map<String, Integer> countReplyLike(int replyNum) {
+			Map<String, Integer> map = new HashMap<>();
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			String sql;
+			
+			try {
+				sql = " SELECT COUNT(DECODE(replyLike, 1, 1)) likeCount,  "
+					+ "     COUNT(DECODE(replyLike, 0, 1)) disLikeCount  "
+					+ " FROM freebbsReplyLike WHERE replyNum = ? ";
+				pstmt = conn.prepareStatement(sql);
+				
+				pstmt.setInt(1, replyNum);
+				
+				rs = pstmt.executeQuery();
+				
+				if(rs.next()) {
+					map.put("likeCount", rs.getInt("likeCount"));
+					map.put("disLikeCount", rs.getInt("disLikeCount"));
+				}
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				if(rs != null) {
+					try {
+						rs.close();
+					} catch (SQLException e) {
+					}
+				}
+				if(pstmt!=null) {
+					try {
+						pstmt.close();
+					} catch (SQLException e) {
+					}
+				}
+			}
+			
+			return map;
+		}	
+		
+	
+		
+}

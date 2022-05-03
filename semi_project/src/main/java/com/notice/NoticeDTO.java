@@ -11,7 +11,10 @@ public class NoticeDTO {
 	private String content;
 	private String reg_date;
 	private int hitCount;
-	private int likeCount;
+	
+	private int replyCount;
+	private int boardLikeCount;
+	private int likeCount; 
 	
 	private long gap;
 	
@@ -117,6 +120,18 @@ public class NoticeDTO {
 	}
 	public void setLikeCount(int likeCount) {
 		this.likeCount = likeCount;
+	}
+	public int getReplyCount() {
+		return replyCount;
+	}
+	public void setReplyCount(int replyCount) {
+		this.replyCount = replyCount;
+	}
+	public int getBoardLikeCount() {
+		return boardLikeCount;
+	}
+	public void setBoardLikeCount(int boardLikeCount) {
+		this.boardLikeCount = boardLikeCount;
 	}
 	
 	
