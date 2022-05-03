@@ -95,6 +95,11 @@ function searchList() {
 				<td width="50%">
 					${dataCount}개 | (${page}/${total_page} 페이지)
 				</td>
+				<td align="right">
+					<select name="complete" class="form-select">
+						<option value="1" ${complete==1 ? "selected='selected' ":""}>최신순</option>
+					</select>		
+				<td>
 			</tr>
 		</table>
 		
