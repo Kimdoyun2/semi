@@ -67,10 +67,10 @@ public class NoticeServlet extends MyUploadServlet {
 			updateForm(req, resp);
 		}else if(uri.indexOf("update_ok.do") != -1) {
 			updateSubmit(req, resp);
-		}else if(uri.indexOf("delete.do") != -1) {
-			delete(req, resp);
 		}else if(uri.indexOf("deleteFile.do") != -1) {
 			deleteFile(req, resp);
+		}else if(uri.indexOf("delete.do") != -1) {
+			delete(req, resp);
 		}else if(uri.indexOf("deleteList.do") != -1) {
 			deleteList(req, resp);
 		}else if(uri.indexOf("download.do") != -1) {
@@ -445,8 +445,7 @@ public class NoticeServlet extends MyUploadServlet {
 		NoticeDAO dao = new NoticeDAO();
 
 		String page = req.getParameter("page");
-		String rows = req.getParameter("rows");
-		String query = "page=" + page + "&rows=" + rows;
+		String query = "page="+ page;
 
 		try {
 			int num = Integer.parseInt(req.getParameter("num"));
@@ -458,10 +457,15 @@ public class NoticeServlet extends MyUploadServlet {
 			}
 			keyword = URLDecoder.decode(keyword, "utf-8");
 
-			if (keyword.length() != 0) {
-				query += "&condition=" + condition + "&keyword=" + URLEncoder.encode(keyword, "UTF-8");
+			String order = req.getParameter("order");
+			if(order == null) {
+				order = "latest";
 			}
-			dao.deleteNotice(num, info.getUserId());
+			if(keyword.length() != 0) {
+				query += "&condition=" + condition + 
+						 "&keyword=" + URLEncoder.encode(keyword, "utf-8") +
+						 "&order=" + order;
+			}
 
 			NoticeDTO dto = dao.readNotice(num);
 			if (dto == null) {

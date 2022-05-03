@@ -484,7 +484,7 @@ $(function(){
 				<tr>
 					<td colspan="2">
 						다음글 : 
-						<c:if test="${not empty preReadNotice}">
+						<c:if test="${not empty nextReadNotice}">
 							<a href="${pageContext.request.contextPath}/notice/article.do?${query}&num=${nextReadNotice.num}">${nextReadNotice.subject}</a>
 						</c:if>
 					</td>

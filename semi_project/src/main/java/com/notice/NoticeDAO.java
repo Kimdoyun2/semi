@@ -731,6 +731,41 @@ private Connection conn = DBConn.getConnection();
 		}
 	}
 	
+public void deleteNotice(int num, String userId) throws SQLException {
+	PreparedStatement pstmt = null;
+	String sql;
+
+	try {
+		if (userId.equals("admin")) {
+			sql = "DELETE FROM freebbs WHERE num=?";
+			pstmt = conn.prepareStatement(sql);
+
+			pstmt.setInt(1, num);
+
+			pstmt.executeUpdate();
+		} else {
+			sql = "DELETE FROM freebbs WHERE num=? AND userId=?";
+
+			pstmt = conn.prepareStatement(sql);
+
+			pstmt.setInt(1, num);
+			pstmt.setString(2, userId);
+
+			pstmt.executeUpdate();
+		}
+	} catch (SQLException e) {
+		e.printStackTrace();
+		throw e;
+	} finally {
+		if (pstmt != null) {
+			try {
+				pstmt.close();
+			} catch (Exception e) {
+			}
+		}
+	}
+}
+	
 	public void deleteNoticeFile(String mode, int num) throws SQLException {
 		// 파일 테이블 삭제
 		PreparedStatement pstmt = null;
@@ -762,41 +797,6 @@ private Connection conn = DBConn.getConnection();
 		}
 	}
 		
-		
-	public void deleteNotice(int num, String userId) throws SQLException {
-		PreparedStatement pstmt = null;
-		String sql;
-
-		try {
-			if (userId.equals("admin")) {
-				sql = "DELETE FROM freebbs WHERE num=?";
-				pstmt = conn.prepareStatement(sql);
-
-				pstmt.setInt(1, num);
-
-				pstmt.executeUpdate();
-			} else {
-				sql = "DELETE FROM freebbs WHERE num=? AND userId=?";
-
-				pstmt = conn.prepareStatement(sql);
-
-				pstmt.setInt(1, num);
-				pstmt.setString(2, userId);
-
-				pstmt.executeUpdate();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw e;
-		} finally {
-			if (pstmt != null) {
-				try {
-					pstmt.close();
-				} catch (Exception e) {
-				}
-			}
-		}
-	}
 	
 	// 로그인 유저의 게시글 공감 유무
 		public boolean isUserBoardLike(int num, String userId) {
