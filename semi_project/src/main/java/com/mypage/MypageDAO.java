@@ -133,7 +133,7 @@ public class MypageDAO {
 			sb.append("      UNION ALL "); 
 			sb.append("      SELECT 'study' boardName, num, subject, reg_date, hitCount FROM study WHERE userId = ?"); 
 			sb.append("      UNION ALL "); 
-			sb.append("      SELECT 'qAndA' boardName, num, subject, reg_date, hitCount FROM qAndA WHERE userId = ?"); 
+			sb.append("      SELECT 'qAnda' boardName, num, subject, reg_date, hitCount FROM qAndA WHERE userId = ?"); 
 			sb.append("     ORDER BY reg_date DESC ");
 			sb.append("   ) tb WHERE ROWNUM <= ? ");
 			sb.append(" ) WHERE rnum >= ? "); 
