@@ -22,41 +22,25 @@
     		<div class="rank">
 				<span class="rank-title">조회수 랭킹</span>
 	    		<table class="rank-table">
-	    			<tr>
-	    				<td>1. [html 강의] 웹프로...</td>
-	    			</tr>
-	    			<tr>
-	    				<td>2. [java 강의] java...</td>
-	    			</tr>
-	    			<tr>
-	    				<td>3. [DB 강의] 데이터...</td>
-	    			</tr>
-	    			<tr>
-	    				<td>4. [공유] 요즘 취업...</td>
-	    			</tr>
-	    			<tr>
-	    				<td>5. [자유게시판] 국비...</td>
-	    			</tr>
+		    		<c:forEach var="dto" items="${rankHitCount}">
+					<tr>
+						<td>
+							<a href="${pageContext.request.contextPath}/${dto.boardName}/article.do?num=${dto.num}&page=1">${dto.listNum}. ${dto.subject}</a>
+						</td>
+					</tr>
+					</c:forEach>
 	    		</table>
     		</div>
     		<div class="rank" style="margin-top: 20px;">
     			<span class="rank-title">최근 게시물</span>
 	    		<table class="rank-table">
-	    			<tr>
-	    				<td>1. [html 강의] 웹프로...</td>
-	    			</tr>
-	    			<tr>
-	    				<td>2. [java 강의] java...</td>
-	    			</tr>
-	    			<tr>
-	    				<td>3. [DB 강의] 데이터...</td>
-	    			</tr>
-	    			<tr>
-	    				<td>4. [공유] 요즘 취업...</td>
-	    			</tr>
-	    			<tr>
-	    				<td>5. [자유게시판] 국비...</td>
-	    			</tr>
+	    			<c:forEach var="dto" items="${rankReg_date}">
+					<tr>
+						<td>
+							<a href="${pageContext.request.contextPath}/${dto.boardName}/article.do?num=${dto.num}&page=1">${dto.listNum}. ${dto.subject}</a>
+						</td>
+					</tr>
+					</c:forEach>
 	    		</table>
 	    	</div>
     	</div>
