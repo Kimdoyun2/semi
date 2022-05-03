@@ -109,7 +109,7 @@ function memberOk() {
         return;
     }
 
-   	f.action = "${pageContext.request.contextPath}";
+   	f.action = "${pageContext.request.contextPath}/member/${mode}_ok.do";
     f.submit();
 }
 
@@ -148,9 +148,12 @@ function changeEmail() {
 				<td>아&nbsp;이&nbsp;디</td>
 				<td>
 					<p>
-						<input type="text" name="userId" id="userId" maxlength="10" class="form-control" style="width: 50%;">
+						<input type="text" name="userId" id="userId" maxlength="10" class="form-control" value="${dto.userId}" style="width: 50%;"
+							${mode=="update" ? "readonly='readonly' ":""}>
 					</p>
-					<p class="help-block">아이디는 5~10자 이내이며, 첫글자는 영문자로 시작해야 합니다.</p>
+					<c:if test="${mode=='member'}">
+						<p class="help-block">아이디는 5~10자 이내이며, 첫글자는 영문자로 시작해야 합니다.</p>
+					</c:if>
 				</td>
 			</tr>
 		
@@ -177,14 +180,15 @@ function changeEmail() {
 			<tr>
 				<td>이&nbsp;&nbsp;&nbsp;&nbsp;름</td>
 				<td>
-					<input type="text" name="userName" maxlength="10" class="form-control" style="width: 50%;">
+					<input type="text" name="userName" maxlength="10" class="form-control" value="${dto.userName}" style="width: 50%;"
+						${mode=="update" ? "readonly='readonly' ":""}>
 				</td>
 			</tr>
 		
 			<tr>
 				<td>생년월일</td>
 				<td>
-					<input type="date" name="birth" class="form-control" style="width: 50%;">
+					<input type="date" name="birth" class="form-control" value="${dto.birth}" style="width: 50%;">
 				</td>
 			</tr>
 		
@@ -199,8 +203,8 @@ function changeEmail() {
 							<option value="hotmail.com" ${dto.email2=="hotmail.com" ? "selected='selected'" : ""}>핫 메일</option>
 							<option value="direct">직접입력</option>
 					  </select>
-					  <input type="text" name="email1" maxlength="30" class="form-control" style="width: 33%;"> @ 
-					  <input type="text" name="email2" maxlength="30" class="form-control" style="width: 33%;" readonly="readonly">
+					  <input type="text" name="email1" maxlength="30" class="form-control" value="${dto.email1}" style="width: 33%;"> @ 
+					  <input type="text" name="email2" maxlength="30" class="form-control" value="${dto.email2}" style="width: 33%;" readonly="readonly">
 				</td>
 			</tr>
 			
@@ -229,15 +233,15 @@ function changeEmail() {
 							<option value="064" ${dto.tel1=="064" ? "selected='selected'" : ""}>064</option>
 							<option value="070" ${dto.tel1=="070" ? "selected='selected'" : ""}>070</option>
 					  </select>
-					  <input type="text" name="tel2" maxlength="4" class="form-control" style="width: 33%;"> -
-					  <input type="text" name="tel3" maxlength="4" class="form-control" style="width: 33%;">
+					  <input type="text" name="tel2" maxlength="4" class="form-control" value="${dto.tel2}" style="width: 33%;"> -
+					  <input type="text" name="tel3" maxlength="4" class="form-control" value="${dto.tel3}" style="width: 33%;">
 				</td>
 			</tr>
 		
 			<tr>
 				<td>우편번호</td>
 				<td>
-					<input type="text" name="zip" id="zip" maxlength="7" class="form-control" readonly="readonly" style="width: 50%;">
+					<input type="text" name="zip" id="zip" maxlength="7" class="form-control" value="${dto.zip}" readonly="readonly" style="width: 50%;">
 					<button type="button" class="btn" onclick="daumPostcode();">우편번호검색</button>
 				</td>
 			</tr>
@@ -246,10 +250,10 @@ function changeEmail() {
 				<td valign="top">주&nbsp;&nbsp;&nbsp;&nbsp;소</td>
 				<td>
 					<p>
-						<input type="text" name="addr1" id="addr1" maxlength="50" class="form-control" readonly="readonly" style="width: 96%;">
+						<input type="text" name="addr1" id="addr1" maxlength="50" class="form-control" value="${dto.addr1}" readonly="readonly" style="width: 96%;">
 					</p>
 					<p class="block">
-						<input type="text" name="addr2" id="addr2" maxlength="50"  class="form-control" style="width: 96%;">
+						<input type="text" name="addr2" id="addr2" maxlength="50"  class="form-control" value="${dto.addr2}" style="width: 96%;">
 					</p>
 				</td>
 			</tr>
@@ -271,9 +275,9 @@ function changeEmail() {
 					
 			<tr>
 				<td align="center">
-				    <button type="button" class="btn" name="btnOk" onclick="memberOk();"> 회원가입 </button>
+				    <button type="button" class="btn" name="btnOk" onclick="memberOk();"> ${mode=="member"?"회원가입":"정보수정"} </button>
 				    <button type="reset" class="btn"> 다시입력 </button>
-				    <button type="button" class="btn"> 가입취소 </button>
+				    <button type="button" class="btn"> ${mode=="member"?"가입취소":"수정취소"} </button>
 				</td>
 			</tr>
 			
