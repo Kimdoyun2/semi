@@ -277,7 +277,7 @@ function changeEmail() {
 				<td align="center">
 				    <button type="button" class="btn" name="btnOk" onclick="memberOk();"> ${mode=="member"?"회원가입":"정보수정"} </button>
 				    <button type="reset" class="btn"> 다시입력 </button>
-				    <button type="button" class="btn"> ${mode=="member"?"가입취소":"수정취소"} </button>
+				    <button type="button" class="btn" onclick="javascript:location.href='${pageContext.request.contextPath}/';"> ${mode=="member"?"가입취소":"수정취소"} </button>
 				</td>
 			</tr>
 			

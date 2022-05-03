@@ -9,6 +9,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>dokky</title>
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
+<style type="text/css">
+a { color: #8f96a4; text-decoration: none; cursor: pointer; }
+a:active, a:hover { color: #243b73; text-decoration: underline; }
+</style>
 </head>
 <body>
 
