@@ -21,10 +21,10 @@
     	<div class="mainSide" style="float: left;">
     		<div class="rank">
 				<span class="rank-title">조회수 랭킹</span>
-	    		<table class="rank-table">
+	    		<table class="rank-table" style="table-layout: fixed; display: table;">
 		    		<c:forEach var="dto" items="${rankHitCount}">
 					<tr>
-						<td>
+						<td style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
 							<a href="${pageContext.request.contextPath}/${dto.boardName}/article.do?num=${dto.num}&page=1">${dto.listNum}. ${dto.subject}</a>
 						</td>
 					</tr>
@@ -33,10 +33,10 @@
     		</div>
     		<div class="rank" style="margin-top: 20px;">
     			<span class="rank-title">최근 게시물</span>
-	    		<table class="rank-table">
+	    		<table class="rank-table" style="table-layout: fixed; display: table;">
 	    			<c:forEach var="dto" items="${rankReg_date}">
 					<tr>
-						<td>
+						<td style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
 							<a href="${pageContext.request.contextPath}/${dto.boardName}/article.do?num=${dto.num}&page=1">${dto.listNum}. ${dto.subject}</a>
 						</td>
 					</tr>
