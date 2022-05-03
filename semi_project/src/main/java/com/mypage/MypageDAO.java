@@ -78,7 +78,7 @@ public class MypageDAO {
 			+ " UNION ALL "
 			+ " SELECT 'study' tbname, subject FROM study WHERE userid = ?"
 			+ " UNION ALL "
-			+ " SELECT 'qAnda' tbname, subject FROM qAnda WHERE userid = ?"
+			+ " SELECT 'qANDa' tbname, subject FROM qAnda WHERE userid = ?"
 			+ " ) ";
 		
 		pstmt = conn.prepareStatement(sql);
@@ -133,7 +133,7 @@ public class MypageDAO {
 			sb.append("      UNION ALL "); 
 			sb.append("      SELECT 'study' boardName, num, subject, reg_date, hitCount FROM study WHERE userId = ?"); 
 			sb.append("      UNION ALL "); 
-			sb.append("      SELECT 'qAnda' boardName, num, subject, reg_date, hitCount FROM qAndA WHERE userId = ?"); 
+			sb.append("      SELECT 'qANDa' boardName, num, subject, reg_date, hitCount FROM qAndA WHERE userId = ?"); 
 			sb.append("     ORDER BY reg_date DESC ");
 			sb.append("   ) tb WHERE ROWNUM <= ? ");
 			sb.append(" ) WHERE rnum >= ? "); 
