@@ -7,8 +7,11 @@ public class MypageDTO {
 	private String register_date;
 	private String boardName;
 	private String subject;
+	private String content;
 	private String reg_date;
 	private int hitCount;
+	private int num;
+	private int notice;
 	
 	public String getUserId() {
 		return userId;
@@ -48,6 +51,12 @@ public class MypageDTO {
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
 	public String getReg_date() {
 		return reg_date;
 	}
@@ -60,7 +69,17 @@ public class MypageDTO {
 	public void setHitCount(int hitCount) {
 		this.hitCount = hitCount;
 	}
-	
-	
+	public int getNum() {
+		return num;
+	}
+	public void setNum(int num) {
+		this.num = num;
+	}
+	public int getNotice() {
+		return notice;
+	}
+	public void setNotice(int notice) {
+		this.notice = notice;
+	}
 	
 }
