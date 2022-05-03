@@ -10,6 +10,23 @@
 <title>dokky</title>
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
 <style type="text/css">
+.body-title h3 { 
+	color:#243b73;
+    border-bottom: 3px solid #243b73;
+}
+.table {
+	color:#8f96a4;
+}
+.btn {
+	border-radius: 4px; background-color: #8893aa;
+	color:#fff;
+}
+
+.form-select {
+	border-radius: 4px; background-color: #8893aa;
+	color:#fff;
+}
+
 .table-list thead > tr:first-child{
 	background: #f8f8f8;
 }
@@ -17,26 +34,23 @@
 	text-align: center;
 }
 .table-list .left {
-	text-align: left; padding-left: 15px; 
+	text-align: left; padding-left: 5px; 
 }
 
-.table-list .cruit {
-	width: 70px; background: #f1f3f7; color: #243b73;
-}
 .table-list .num {
-	width: 50px; background: #f1f3f7; color: #243b73; 
+	width: 60px; color: #787878;
 }
 .table-list .subject {
-	background: #f1f3f7; color: #243b73;
+	color: #787878;
 }
 .table-list .name {
-	width: 100px; background: #f1f3f7; color: #243b73;
+	width: 100px; color: #787878;
 }
 .table-list .date {
-	width: 100px; background: #f1f3f7; color: #243b73;
+	width: 100px; color: #787878;
 }
 .table-list .hit {
-	width: 70px; background: #f1f3f7; color: #243b73;
+	width: 70px; color: #787878;
 }
 </style>
 <script type="text/javascript">

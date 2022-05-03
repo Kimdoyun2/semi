@@ -20,8 +20,9 @@
 	border-top: 2px solid #212529; 
 }
 .table-form tr > td:first-child {
-	width: 110px; text-align: center; background: #f8f8f8;
+	width: 110px; text-align: center; background: #f1f3f7 ; color:#243b73; 
 }
+
 .table-form tr > td:nth-child(2) {
 	padding-left: 10px;
 }
