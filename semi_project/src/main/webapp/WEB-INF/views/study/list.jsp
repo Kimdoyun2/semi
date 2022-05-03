@@ -36,11 +36,14 @@
 	text-align: center;
 }
 .table-list .left {
-	text-align: left; padding-left: 5px; 
+	text-align: left; padding-left: 15px; 
 }
 
+.table-list .cruit {
+	width: 70px; background: #f1f3f7; color: #243b73;
+}
 .table-list .num {
-	width: 60px; background: #f1f3f7; color: #243b73;
+	width: 50px; background: #f1f3f7; color: #243b73; 
 }
 .table-list .subject {
 	background: #f1f3f7; color: #243b73;
@@ -58,11 +61,12 @@
 
 a:active, a:hover { color:#243b73; text-decoration: underline; }
 
-
-.table-list .notice{
-	display: inline-block; padding: 1px 3px; background: #243b73 ; color: #fff;
+.table-list .recruit{
+	display: inline-block; padding: 1px 3px; background: #243b73 ; color: #fff; margin-left:9px; margin-top:9px;
 }
-
+.table-list .notrecruit{
+	display: inline-block; padding: 1px 3px; background: #f1f3f7 ; color: #243b73; margin-left:9px; margin-top:9px;
+}
 </style>
 
 <script type="text/javascript">
@@ -70,6 +74,7 @@ function searchList() {
 	const f = document.searchForm;
 	f.submit();
 }
+
 </script>
 
 
@@ -90,13 +95,16 @@ function searchList() {
 				<td width="50%">
 					${dataCount}개 | (${page}/${total_page} 페이지)
 				</td>
-				<td align="right">&nbsp;</td>
+				<td align="right">
+					
+				<td>
 			</tr>
 		</table>
 		
 		<table class="table table-border table-list">
 			<thead>
 				<tr>
+					<th class="cruit">모집여부</th>
 					<th class="num">번호</th>
 					<th class="subject">제목</th>
 					<th class="name">작성자</th>
@@ -105,31 +113,28 @@ function searchList() {
 				</tr>
 			</thead>
 			
+	
 			<tbody>
-				<c:forEach var="dto" items="${listNotice}">
-				<tr>
-					<td><span class="notice">공지</span></td>
-					<td class="left">
-						<a href="${articleUrl}&num=${dto.num}">${dto.subject}</a>
-					</td> 
-					<td>${dto.userName}</td>
-					<td>${dto.reg_date}</td>
-					<td>${dto.hitCount}</td>
-				</tr>
-				</c:forEach>
-				<c:forEach var="dto" items="${list}">
-					<tr>
-						<td>${dto.listNum}</td>
-						<td class="left">
-							<c:forEach var="n" begin="1" end="${dto.depth }">&nbsp;&nbsp;</c:forEach>
-							<c:if test="${dto.depth!=0}">└&nbsp;</c:if>
-							<a href="${articleUrl}&num=${dto.num}">${dto.subject}</a>
-						</td>
-						<td>${dto.userName}</td>
-						<td>${dto.reg_date}</td>
-						<td>${dto.hitCount}</td>
-					</tr>
-				</c:forEach>
+					<c:forEach var="dto" items="${list}">
+						<tr>
+							<c:choose>
+							<c:when test="${dto.recruit!=0}"><td class="recruit"><span>모집완</span></td></c:when>
+							<c:otherwise><td class="notrecruit"><span>모집중</span></td></c:otherwise>
+							</c:choose>
+							
+							<td>${dto.listNum}</td>
+							<td class="left">
+								<c:forEach var="n" begin="1" end="${dto.depth }">&nbsp;&nbsp;</c:forEach>
+								<c:if test="${dto.depth!=0}">└&nbsp;</c:if>
+								<a href="${articleUrl}&num=${dto.num}">${dto.subject}</a>
+							</td>
+							<td>${dto.userName}</td>
+							<td>${dto.reg_date}</td>
+							<td>${dto.hitCount}</td>
+						</tr>
+					</c:forEach>
+				
+	
 			</tbody>
 		</table>
 		

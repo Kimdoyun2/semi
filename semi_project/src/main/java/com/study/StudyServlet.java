@@ -106,9 +106,13 @@ public class StudyServlet extends MyServlet {
 			List<StudyDTO> list = null;
 			if (keyword.length() == 0) {
 				list = dao.listStudy(start, end);
-			} else {
+			} else if(keyword.length() != 0){
 				list = dao.listStudy(start, end, condition, keyword);
-			}
+			} else if(current_page ==1){
+				list = dao.listStudy();
+			} 
+			
+
 
 			// 리스트 글번호 만들기
 			int listNum, n = 0;
@@ -117,7 +121,8 @@ public class StudyServlet extends MyServlet {
 				dto.setListNum(listNum);
 				n++;
 			}
-
+			
+		
 			String query = "";
 			if (keyword.length() != 0) {
 				query = "condition=" + condition + "&keyword=" + URLEncoder.encode(keyword, "utf-8");
@@ -178,8 +183,11 @@ public class StudyServlet extends MyServlet {
 
 			// 파라미터
 			dto.setSubject(req.getParameter("subject"));
+			if(req.getParameter("recruit") != null) {
+				dto.setRecruit(Integer.parseInt(req.getParameter("recruit")));
+			}
 			dto.setContent(req.getParameter("content"));
-
+			
 			dao.insertStudy(dto, "write");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -303,6 +311,9 @@ public class StudyServlet extends MyServlet {
 		try {
 			StudyDTO dto = new StudyDTO();
 			dto.setNum(Integer.parseInt(req.getParameter("num")));
+			if(req.getParameter("recruit")!=null) {
+				dto.setRecruit(Integer.parseInt(req.getParameter("recruit")));
+			}
 			dto.setSubject(req.getParameter("subject"));
 			dto.setContent(req.getParameter("content"));
 

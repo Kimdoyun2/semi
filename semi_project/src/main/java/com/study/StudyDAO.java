@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import com.util.DBConn;
 
 public class StudyDAO {
@@ -50,8 +49,8 @@ public class StudyDAO {
 			}
 			
 			sql = "INSERT INTO study(num, userId, subject, content, "
-					+ "  groupNum, depth, orderNo, parent, hitCount, reg_date) "
-					+ "  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, SYSDATE)";
+					+ "  groupNum, depth, orderNo, parent, hitCount, reg_date, recruit) "
+					+ "  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, SYSDATE, ?)";
 			
 			pstmt = conn.prepareStatement(sql);
 			
@@ -63,6 +62,7 @@ public class StudyDAO {
 			pstmt.setInt(6, dto.getDepth());
 			pstmt.setInt(7, dto.getOrderNo());
 			pstmt.setInt(8, dto.getParent());
+			pstmt.setInt(9, dto.getRecruit());
 			
 			pstmt.executeUpdate();			
 		} catch (Exception e) {
@@ -206,7 +206,7 @@ public class StudyDAO {
 			sb.append("     SELECT ROWNUM rnum, tb.* FROM ( ");
 			sb.append("         SELECT num, s.userId, userName, ");
 			sb.append("               subject, groupNum, orderNo, depth, hitCount, ");
-			sb.append("               TO_CHAR(reg_date, 'YYYY-MM-DD') reg_date ");
+			sb.append("               TO_CHAR(reg_date, 'YYYY-MM-DD') reg_date, recruit ");
 			sb.append("         FROM study s ");
 			sb.append("         JOIN member1 m ON s.userId = m.userId ");
 			sb.append("         ORDER BY groupNum DESC, orderNo ASC ");
@@ -232,6 +232,7 @@ public class StudyDAO {
 				dto.setOrderNo(rs.getInt("orderNo"));
 				dto.setHitCount(rs.getInt("hitCount"));
 				dto.setReg_date(rs.getString("reg_date"));
+				dto.setRecruit(rs.getInt("recruit"));
 				
 				list.add(dto);
 			}
@@ -270,7 +271,7 @@ public class StudyDAO {
 			sb.append("     SELECT ROWNUM rnum, tb.* FROM ( ");
 			sb.append("         SELECT num, s.userId, userName, ");
 			sb.append("               subject, groupNum, orderNo, depth, hitCount, ");
-			sb.append("               TO_CHAR(reg_date, 'YYYY-MM-DD') reg_date ");
+			sb.append("               TO_CHAR(reg_date, 'YYYY-MM-DD') reg_date, recruit ");
 			sb.append("         FROM study s ");
 			sb.append("         JOIN member1 m ON s.userId = m.userId ");
 			if (condition.equals("all")) {
@@ -311,6 +312,8 @@ public class StudyDAO {
 				dto.setOrderNo(rs.getInt("orderNo"));
 				dto.setHitCount(rs.getInt("hitCount"));
 				dto.setReg_date(rs.getString("reg_date"));
+				dto.setRecruit(rs.getInt("recruit"));
+				
 				
 				list.add(dto);
 			}
@@ -335,6 +338,58 @@ public class StudyDAO {
 		return list;
 	}
 	
+	// 모집완료글
+	public List<StudyDTO> listStudy() {
+			List<StudyDTO> list = new ArrayList<StudyDTO>();
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			String sql;
+			
+			try {
+				sql = "SELECT num, userName, recruit, subject, hitCount, "
+					+ " TO_CHAR(reg_date, 'YYYY-MM-DD') reg_date "
+					+ " FROM study s "
+					+ " JOIN member1 m ON s.userId = m.userId "
+					+ " WHERE recruit = 1 "
+					+ " ORDER BY num DESC ";
+				
+				pstmt = conn.prepareStatement(sql);
+				rs = pstmt.executeQuery();
+				
+				while(rs.next()) {
+					StudyDTO dto = new StudyDTO();
+					dto.setNum(rs.getInt("num"));
+					dto.setUserName(rs.getString("userName"));
+					dto.setRecruit(rs.getInt("recruit"));
+					dto.setSubject(rs.getString("subject"));
+					dto.setHitCount(rs.getInt("hitCount"));
+					dto.setReg_date(rs.getString("reg_date"));
+					
+					list.add(dto);
+					
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if(rs != null) {
+					try {
+						rs.close();
+					}catch (Exception e2) {
+					}
+				}
+				if(pstmt != null) {
+					try {
+						pstmt.close();
+					} catch (Exception e2) {
+					}
+				}
+				
+			}
+			return list;
+			
+		}
+		
 	// 조회수 증가하기 
 	public void updateHitCount(int num) throws SQLException {
 		PreparedStatement pstmt = null;
@@ -370,7 +425,7 @@ public class StudyDAO {
 
 		try {
 			sql = "SELECT num, s.userId, userName, subject, content, reg_date, hitCount, " 
-					+ "   groupNum, depth, orderNo, parent "
+					+ "   groupNum, depth, orderNo, parent, recruit "
 					+ " FROM study s "
 					+ " JOIN member1 m ON s.userId=m.userId "
 					+ " WHERE num = ? ";
@@ -394,6 +449,7 @@ public class StudyDAO {
 				dto.setParent(rs.getInt("parent"));
 				dto.setHitCount(rs.getInt("hitCount"));
 				dto.setReg_date(rs.getString("reg_date"));
+				dto.setRecruit(rs.getInt("recruit"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -578,13 +634,14 @@ public class StudyDAO {
 		String sql;
 
 		try {
-			sql = "UPDATE study SET subject=?, content=? WHERE num=? AND userId=?";
+			sql = "UPDATE study SET subject=?, content=?, recruit=? WHERE num=? AND userId=?";
 			pstmt = conn.prepareStatement(sql);
 			
 			pstmt.setString(1, dto.getSubject());
 			pstmt.setString(2, dto.getContent());
-			pstmt.setInt(3, dto.getNum());
-			pstmt.setString(4, dto.getUserId());
+			pstmt.setInt(3, dto.getRecruit());
+			pstmt.setInt(4, dto.getNum());
+			pstmt.setString(5, dto.getUserId());
 			
 			pstmt.executeUpdate();
 

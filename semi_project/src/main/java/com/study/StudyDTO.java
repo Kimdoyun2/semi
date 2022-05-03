@@ -13,7 +13,14 @@ public class StudyDTO {
 	private int orderNo;
 	private int depth;
 	private int parent;
+	private int recruit;
 	
+	public int getRecruit() {
+		return recruit;
+	}
+	public void setRecruit(int recruit) {
+		this.recruit = recruit;
+	}
 	public int getListNum() {
 		return listNum;
 	}

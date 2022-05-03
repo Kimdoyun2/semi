@@ -106,7 +106,10 @@ function sendStudy() {
 					</td>
 				</tr>
 				
-			
+				<tr>
+				<td>모집 완료 여부</td>
+					<td><p><input type="checkbox" name="recruit" value="1" ${dto.recruit==1?"checked='checked'":"" }><label>완료</label></p> </td>	
+				</tr>
 				
 				<tr> 
 					<td>작성자</td>
