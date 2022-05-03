@@ -13,6 +13,41 @@
 .table-article tr > td {
 	padding-left: 5px; padding-right: 5px;
 }
+
+a { color: #8f96a4; }
+
+.body-title h3 { 
+	color:#243b73;
+    border-bottom: 3px solid #243b73;
+}
+.table {
+	color:#8f96a4;
+}
+.btn {
+	border-radius: 4px; background-color:#8893aa ;
+	color:#fff;
+}
+
+.form-select {
+	border-radius: 4px; background-color: #8893aa;
+	color:#fff;
+}
+
+footer { 
+    color:#8f96a4;
+}
+
+a:active, a:hover { color:#243b73; text-decoration: underline; }
+
+thead{
+background: #f1f3f7;
+color: #243b73;
+font-weight: 700;
+}
+.table-article tr > td {
+	padding-left: 5px; padding-right: 5px;
+}
+
 </style>
 <script type="text/javascript">
 <c:if test="${sessionScope.member.userId==dto.userId || sessionScope.member.userId=='admin'}">
@@ -42,7 +77,7 @@
 			<thead>
 				<tr>
 					<td colspan="2" align="center">
-						<c:if test="${dto.depth!=0 }">[Re] </c:if>
+						<c:if test="${dto.depth!=0 }">[Re]</c:if>
 						${dto.subject}
 					</td>
 				</tr>

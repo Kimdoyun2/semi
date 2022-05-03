@@ -17,23 +17,26 @@
 	text-align: center;
 }
 .table-list .left {
-	text-align: left; padding-left: 5px; 
+	text-align: left; padding-left: 15px; 
 }
 
+.table-list .cruit {
+	width: 70px; background: #f1f3f7; color: #243b73;
+}
 .table-list .num {
-	width: 60px; color: #787878;
+	width: 50px; background: #f1f3f7; color: #243b73; 
 }
 .table-list .subject {
-	color: #787878;
+	background: #f1f3f7; color: #243b73;
 }
 .table-list .name {
-	width: 100px; color: #787878;
+	width: 100px; background: #f1f3f7; color: #243b73;
 }
 .table-list .date {
-	width: 100px; color: #787878;
+	width: 100px; background: #f1f3f7; color: #243b73;
 }
 .table-list .hit {
-	width: 70px; color: #787878;
+	width: 70px; background: #f1f3f7; color: #243b73;
 }
 </style>
 <script type="text/javascript">
