@@ -109,7 +109,7 @@ function orderChange() {
 			<tr>
 				<td width="50%">${dataCount}개(${page}/${total_page} 페이지)</td>
 				<td align="right">
-					<select id="orderselected" name="order" class="order-select" onchange="orderChange()">
+					<select id="orderselected" name="order" class="form-select" onchange="orderChange()">
 							<option value="latest" ${order=="latest" ?"selected='selected'":"" }>최신순</option>
 							<option value="hitCount" ${order=="hitCount" ?"selected='selected'":"" }>조회수순</option>
 							<option value="likeCount" ${order=="likeCount" ?"selected='selected'":"" }>좋아요순</option>

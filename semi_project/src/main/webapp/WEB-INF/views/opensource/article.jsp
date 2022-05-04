@@ -110,7 +110,7 @@ function ajaxFun(url, method, query, dataType, fn) {
 $(function() {
 	$(".btnSendOsLike").click(function() {
 		const $i = $(this).find("i");
-		let isNoLike = $i.css("color") == "rgb(255, 255, 255)";
+		let isNoLike = $i.css("color") == "rgb(0, 0, 0)";
 		let msg = isNoLike ? "게시글에 좋아요를 누르시겠습니까? " : "게시글에 좋아요를 취소하시겠습니까? ";
 		
 		if(! confirm(msg)) {
@@ -124,9 +124,9 @@ $(function() {
 		const fn = function(data) {
 			let state = data.state;
 			if(state === "true") {
-				let color = "white";
+				let color = "black";
 				if(isNoLike) {
-					color = "red";
+					color = "blue";
 				}
 				$i.css("color", color);
 				
@@ -179,12 +179,6 @@ $(function() {
 					</td>
 				</tr>
 				
-				<tr>
-					<td colspan="2" align="center" style="padding-bottom: 20px;">
-						<button type="button" class="btn btnSendOsLike" title="좋아요"><i class="fa-solid fa-heart" style="color: ${isUserLike?'red':'white'}"></i>&nbsp;&nbsp;<span id="osLikeCount">${dto.likeCount}</span></button>
-					</td>
-				</tr>
-				
 				<c:forEach var="vo" items="${listFile}">
 				<tr>
 					<td colspan="2">
@@ -215,24 +209,27 @@ $(function() {
 		
 		<table class="table">
 			<tr>
-				<td width="48%">
+				<td width="38%">
 				<c:choose>
-					<c:when test="${sessionScope.member.userId=='admin' && sessionScope.member.userId==dto.userId}">
+					<c:when test="${sessionScope.member.userId==dto.userId}">
 						<button type="button" class="btn"  onclick="location.href='${pageContext.request.contextPath}/opensource/update.do?num=${dto.num}&${query}';">수정</button>
 					</c:when>
 					<c:otherwise>
-						<button type="button" class="btn" disabled="disabled">수정</button>
+						<button type="button" class="btn" disabled="disabled" style="display: none;">수정</button>
 					</c:otherwise>
 				</c:choose>
 				
 				<c:choose>
-					<c:when test="${sessionScope.member.userId=='admin' && sessionScope.member.userId==dto.userId}">
+					<c:when test="${sessionScope.member.userId=='admin' || sessionScope.member.userId==dto.userId}">
 						<button type="button" class="btn" onclick="deleteOpensource();">삭제</button>
 					</c:when>
 					<c:otherwise>
-						<button type="button" class="btn" disabled="disabled">삭제</button>
+						<button type="button" class="btn" disabled="disabled" style="display: none;">삭제</button>
 					</c:otherwise>
 				</c:choose>
+				
+				<td  align="center" style="padding-bottom: 20px;">
+						<button type="button" class="btn btnSendBoardLike" title="좋아요"><i class="fas fa-thumbs-up" style="color: ${isUserLike?'blue':'black'}"></i>&nbsp;&nbsp;<span id="boardLikeCount">${dto.likeCount}</span></button>
 				</td>
 				<td align="right">
 					<button type="button" class="btn" onclick="location.href='${pageContext.request.contextPath}/opensource/list.do?${query}';">리스트</button>
