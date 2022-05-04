@@ -10,8 +10,8 @@
 <title>dokky</title>
 <jsp:include page="/WEB-INF/views/layout/staticHeader.jsp"/>
 <style type="text/css">
-a { color: #8f96a4; text-decoration: none; cursor: pointer; }
-a:active, a:hover { color: #243b73; text-decoration: underline; }
+.ar { color: #222; text-decoration: none; cursor: pointer; }
+.ar:active, .ar:hover { color: #243b73; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -29,7 +29,7 @@ a:active, a:hover { color: #243b73; text-decoration: underline; }
 		    		<c:forEach var="dto" items="${rankHitCount}">
 					<tr>
 						<td style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-							<a href="${pageContext.request.contextPath}/${dto.boardName}/article.do?num=${dto.num}&page=1">${dto.listNum}. ${dto.subject}</a>
+							<a class="ar" href="${pageContext.request.contextPath}/${dto.boardName}/article.do?num=${dto.num}&page=1">${dto.listNum}. ${dto.subject}</a>
 						</td>
 					</tr>
 					</c:forEach>
@@ -41,7 +41,7 @@ a:active, a:hover { color: #243b73; text-decoration: underline; }
 	    			<c:forEach var="dto" items="${rankReg_date}">
 					<tr>
 						<td style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-							<a href="${pageContext.request.contextPath}/${dto.boardName}/article.do?num=${dto.num}&page=1">${dto.listNum}. ${dto.subject}</a>
+							<a class="ar" href="${pageContext.request.contextPath}/${dto.boardName}/article.do?num=${dto.num}&page=1">${dto.listNum}. ${dto.subject}</a>
 						</td>
 					</tr>
 					</c:forEach>
