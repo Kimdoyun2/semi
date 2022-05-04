@@ -226,7 +226,13 @@ public class OpensourceServlet extends MyUploadServlet {
 				resp.sendRedirect(cp+"/opensource/list.do?"+query);
 				return;
 			}
+			
+			dto.setContent(dto.getContent().replaceAll("&", "&amp;"));
+			dto.setContent(dto.getContent().replaceAll("\"", "&quot;"));
+			dto.setContent(dto.getContent().replaceAll(">", "&gt;"));
+			dto.setContent(dto.getContent().replaceAll("<", "&lt;"));
 			dto.setContent(dto.getContent().replaceAll("\n", "<br>"));
+			dto.setContent(dto.getContent().replaceAll("\\s", "&nbsp;"));
 			
 			boolean isUserLike = dao.isUserOsLike(num, info.getUserId());
 			
