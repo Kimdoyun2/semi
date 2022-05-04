@@ -98,7 +98,7 @@ function searchList() {
 				<td align="right">
 					<select name="complete" class="form-select">
 						<option value="1" ${complete==1 ? "selected='selected' ":""}>최신순</option>
-					</select>		
+					</select>
 				<td>
 			</tr>
 		</table>
