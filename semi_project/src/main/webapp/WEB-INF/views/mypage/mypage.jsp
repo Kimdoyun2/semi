@@ -64,6 +64,25 @@
 	width: 150px;
 }
 
+.table {
+	color:#8f96a4;
+}
+
+.table-list .num {
+	width: 60px; background: #f1f3f7; color: #243b73;
+}
+.table-list .subject {
+	background: #f1f3f7; color: #243b73;
+}
+.table-list .name {
+	width: 100px; background: #f1f3f7; color: #243b73;
+}
+.table-list .date {
+	width: 100px; background: #f1f3f7; color: #243b73;
+}
+.table-list .hit {
+	width: 70px; background: #f1f3f7; color: #243b73;
+}
 </style>
 
 </head>
